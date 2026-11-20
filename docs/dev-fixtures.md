@@ -278,6 +278,16 @@ The bundle is `build:app`'s, not the one `npm run build` makes (that is the CLI'
 and the store files have to be pinned: `LOTSMAN_APP_THINKING` sends into the **pending** chat an empty
 `LOTSMAN_SESSIONS_FILE` opens, and without them the run reads the person's own sessions.
 
+## `LOTSMAN_APP_DICTATION` — push to talk, with a fake microphone
+
+The window passes the widget a recogniser and a microphone (`LotsmanChatOptions.dictation`, ADR 0010
+stage 2). Until the gjsify release exists they are an engine that says "not available": the microphone
+button is insensitive and its tooltip gives the reason. `LOTSMAN_APP_DICTATION=1` (a flag; `0`/`false`
+is off) swaps in a fake that "records" a quarter second of synthetic silence and answers with a fixed
+line, so hold **F9** (or press and hold the button), release, and the text lands in the entry — not
+sent — without a microphone or a sound. It is the only engine a test or screenshot run may use
+(`frontends/gui/dictation-hook.ts`, `app/tests/unit/gui/dictation-hook.test.ts`).
+
 ## The five pointer-only controls
 
 Five states are unreachable from outside the process, and each has one hook. They are read at startup by
