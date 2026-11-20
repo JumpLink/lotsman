@@ -75,7 +75,7 @@ import Adw from '@girs/adw-1';
 import Gdk from '@girs/gdk-4.0';
 import Gtk from '@girs/gtk-4.0';
 
-import { _, composerView, type ComposerInput } from '@lotsman/core';
+import { _, composerView, dictationInsertion, type ComposerInput, type DictationView } from '@lotsman/core';
 import { CONTENT_MAX_WIDTH_PX } from './constants.ts';
 import { CSS } from './css.ts';
 
@@ -106,6 +106,12 @@ const STOP_ICON = 'process-stop-symbolic';
  * `audio-volume-high-symbolic` next to a mute-looking inactive state invites a person to drag it.
  */
 const READ_ALOUD_ICON = 'audio-speakers-symbolic';
+/**
+ * The microphone. `audio-input-microphone-symbolic` is in Adwaita's symbolic set; it is listed in
+ * `scripts/probes/icon-names.mjs` with the others so a theme without it is caught there.
+ */
+const DICTATION_ICON = 'audio-input-microphone-symbolic';
+const dictationLabel = () => _('Speak');
 /** Button labels. Functions, not constants: a lookup at module load would run before a translator registers. */
 const sendLabel = () => _('Send');
 const stopLabel = () => _('Stop');
@@ -150,6 +156,13 @@ export interface ComposerOptions {
    */
   readonly onReadAloud?: (on: boolean) => void;
   /**
+   * Push to talk: the microphone button went down / came up. **Absent means no button**, the same
+   * gate as `onReadAloud`. What a press means (record, or install the model) is the host's, from
+   * `DictationView.installs`; the composer only reports the pointer.
+   */
+  readonly onDictationPress?: () => void;
+  readonly onDictationRelease?: () => void;
+  /**
    * The render inputs, read once. See `core/composer-state.ts`: every one of them is somebody else's
    * answer (the turn machine, the agent's life, which session is open), which is what makes the composer
    * a renderer rather than a second opinion.
@@ -176,6 +189,9 @@ export class Composer {
   readonly #button: Gtk.Button;
   /** The read-aloud toggle, or `null` when the host offered no speech engine. */
   readonly #readAloud: Gtk.ToggleButton | null;
+  /** The microphone button, or `null` when the host offered no recogniser. */
+  readonly #dictation: Gtk.Button | null;
+  #dictationView: DictationView | null = null;
   /** The one line under the entry: the reason, or the status, never both. See the file header. */
   readonly #status: Gtk.Label;
   readonly #onSend: ((text: string) => void) | undefined;
@@ -302,6 +318,11 @@ export class Composer {
     // on its own, so the on state reads without competing with the Send disc for the accent colour.
     this.#readAloud = this.#onReadAloud ? this.#buildReadAloud() : null;
     if (this.#readAloud) controls.append(this.#readAloud);
+    this.#dictation =
+      options.onDictationPress && options.onDictationRelease
+        ? this.#buildDictation(options.onDictationPress, options.onDictationRelease)
+        : null;
+    if (this.#dictation) controls.append(this.#dictation);
     controls.append(this.#button);
 
     // **One inset for the whole card, and the two lines inside it.** Even on all four sides: the card
@@ -370,6 +391,58 @@ export class Composer {
     this.#syncingReadAloud = true;
     this.#readAloud.active = on;
     this.#syncingReadAloud = false;
+  }
+
+  /** Render the microphone button and its line from `dictationView`. */
+  setDictation(view: DictationView): void {
+    this.#dictationView = view;
+    if (this.#dictation) {
+      this.#dictation.sensitive = view.buttonEnabled;
+      this.#dictation.tooltipText = view.tooltip;
+      this.#dictation.remove_css_class('destructive-action');
+      if (view.recording) this.#dictation.add_css_class('destructive-action');
+    }
+    this.#render();
+  }
+
+  /**
+   * Put dictated text into the entry at the cursor, for review. **Never sends.** The spacing is
+   * core's `dictationInsertion`, so words do not run together or double a space.
+   */
+  insertAtCursor(text: string): void {
+    const buffer = this.#entry.get_buffer();
+    if (!buffer) return;
+    const start = buffer.get_start_iter();
+    const end = buffer.get_end_iter();
+    const cursor = buffer.get_iter_at_mark(buffer.get_insert());
+    const insertion = dictationInsertion(
+      buffer.get_text(start, cursor, false),
+      buffer.get_text(cursor, end, false),
+      text,
+    );
+    if (insertion === '') return;
+    buffer.insert_at_cursor(insertion, -1);
+    this.#entry.grab_focus();
+  }
+
+  /**
+   * Press and hold, not click: a capture-phase gesture on the button, so the button's own `clicked`
+   * (which fires on release) is not the trigger. Keyboard activation does nothing here — the hold
+   * key (chat.ts) is the keyboard path.
+   */
+  #buildDictation(onPress: () => void, onRelease: () => void): Gtk.Button {
+    const button = new Gtk.Button({
+      iconName: DICTATION_ICON,
+      valign: Gtk.Align.END,
+      cssClasses: ['circular', 'flat'],
+    });
+    button.update_property([Gtk.AccessibleProperty.LABEL], [dictationLabel()]);
+    const gesture = new Gtk.GestureClick({ button: 1, propagationPhase: Gtk.PropagationPhase.CAPTURE });
+    gesture.connect('pressed', () => onPress());
+    gesture.connect('released', () => onRelease());
+    gesture.connect('cancel', () => onRelease());
+    button.add_controller(gesture);
+    return button;
   }
 
   /**
@@ -532,7 +605,7 @@ export class Composer {
     // reason only where the button is off), and a disabled control is the more urgent of the two.
     // The exception is a reason the page above already states (`reasonOnPage`): the tooltip and the
     // accessible name keep it, the line stays silent.
-    this.#status.label = (view.reasonOnPage ? '' : view.reason) || view.status;
+    this.#status.label = (view.reasonOnPage ? '' : view.reason) || this.#dictationView?.status || view.status;
     // With nothing to explain, the line takes no height: an empty caption under the composer is a gap
     // that reads as a layout bug.
     this.#status.visible = this.#status.label !== '';

@@ -41,6 +41,7 @@ const NAMES = [
   'go-up-symbolic',
   'process-stop-symbolic',
   'audio-speakers-symbolic',
+  'audio-input-microphone-symbolic',
   // login-dialog.ts — the method rows.
   'go-next-symbolic',
   // tool-line.ts — the icon a tool card and the approval dialog's header pick from the tool's kind,

@@ -59,6 +59,9 @@ import {
   openLoginSession,
   probeConnections,
   providerOffered,
+  dictationOffered,
+  dictationView,
+  pushToTalk,
   readAloud,
   readAloudOffered,
   staleDialog,
@@ -76,7 +79,10 @@ import {
   type NotAnsweredReason,
   type OnboardingInput,
   type PermissionQuestion,
+  type PushToTalk,
   type ReadAloud,
+  type Recorder,
+  type Transcriber,
   type RecordedResolution,
   type SpeechEngine,
 } from '@lotsman/core';
@@ -265,6 +271,18 @@ export interface LotsmanChatOptions {
    */
   readonly speech?: SpeechEngine;
   /**
+   * Push to talk (ADR 0010 stage 2): a recogniser and a microphone from the host, both ports from core.
+   * Absent, or a `voice` policy of `off`: no microphone button. The transcript is inserted into the entry
+   * for review and never sent. Hold **F9** (or the button) to speak; Esc cancels.
+   */
+  readonly dictation?: {
+    readonly transcriber: Transcriber;
+    readonly recorder: Recorder;
+    /** The person's term list, read at each recording (ADR 0010 point 9). */
+    readonly terms?: () => readonly string[];
+    readonly lang?: string;
+  };
+  /**
    * A new conversation has its session and its record — the host's chance to list it.
    *
    * **Called before the widget updates its own view**, so a host that adds the row and names the
@@ -308,6 +326,9 @@ export class LotsmanChat extends Adw.Bin {
    * text arrived, the turn ended, the person stopped it, the toggle moved — and nothing else.
    */
   readonly #readAloud: ReadAloud | null;
+  /** Push to talk, or `null` when no recogniser was offered or the policy says `off`. */
+  readonly #dictation: PushToTalk | null;
+  #dictationKeyHeld = false;
   /**
    * The agent's own configuration, on the composer card's bottom line.
    *
@@ -484,6 +505,18 @@ export class LotsmanChat extends Adw.Bin {
     this.#readAloud = readAloudOffered(options.speech, options.profile?.voice ?? null)
       ? readAloud({ engine: options.speech, onNotice: (message) => this.#onNotice(message) })
       : null;
+    this.#dictation = dictationOffered(options.dictation?.transcriber, options.profile?.voice ?? null)
+      ? pushToTalk({
+          recorder: options.dictation!.recorder,
+          transcriber: options.dictation!.transcriber,
+          voice: options.profile?.voice ?? null,
+          ...(options.dictation!.terms ? { terms: options.dictation!.terms } : {}),
+          ...(options.dictation!.lang ? { lang: options.dictation!.lang } : {}),
+          onState: () => this.#renderDictation(),
+          onAvailability: () => this.#renderDictation(),
+          onText: (text) => this.#composer.insertAtCursor(text),
+        })
+      : null;
     this.#composer = new Composer({
       // **From the controller's own `snapshot`, not from a hand-written initial value.** A literal
       // `idle / none / null` here would be a second source of truth for the composer's inputs that
@@ -509,7 +542,18 @@ export class LotsmanChat extends Adw.Bin {
       // **Only when there is something to toggle.** `Composer` reads an absent callback as "do not
       // build the control", which is why the gate is checked once, above, rather than in two files.
       ...(this.#readAloud ? { onReadAloud: (on: boolean) => this.#readAloud?.setEnabled(on) } : {}),
+      ...(this.#dictation
+        ? {
+            onDictationPress: () => this.#dictationDown(),
+            onDictationRelease: () => void this.#dictation?.release(),
+          }
+        : {}),
     });
+    if (this.#dictation) {
+      this.add_controller(this.#dictationKeys());
+      this.#renderDictation();
+      void this.#dictation.refresh();
+    }
     // Esc silences it. On `this` rather than on the composer, so it works wherever the focus is in
     // the conversation — see `#escapeToStop`.
     if (this.#readAloud) this.add_controller(this.#escapeToStop());
@@ -1068,6 +1112,48 @@ export class LotsmanChat extends Adw.Bin {
     return controller;
   }
 
+  /** A press on the microphone: install the model it asked for, else start recording. */
+  #dictationDown(): void {
+    const ptt = this.#dictation;
+    if (!ptt) return;
+    if (ptt.availability.kind === 'needs-model') void ptt.install();
+    else ptt.press();
+  }
+
+  #renderDictation(): void {
+    if (!this.#dictation) return;
+    this.#composer.setDictation(dictationView(this.#dictation.state, this.#dictation.availability));
+  }
+
+  /**
+   * Hold F9 to talk, Esc to cancel. Capture phase on the chat like `#escapeToStop`, so it works from the
+   * entry; F9 is bound nowhere else in the app (Ctrl+N and Ctrl+, are). Key repeat re-sends the press
+   * while held, hence the flag. Esc propagates, so it still closes dialogs.
+   */
+  #dictationKeys(): Gtk.EventControllerKey {
+    const controller = new Gtk.EventControllerKey({ propagationPhase: Gtk.PropagationPhase.CAPTURE });
+    controller.connect('key-pressed', (_c, keyval) => {
+      if (keyval === Gdk.KEY_F9) {
+        if (!this.#dictationKeyHeld) {
+          this.#dictationKeyHeld = true;
+          this.#dictationDown();
+        }
+        return Gdk.EVENT_STOP;
+      }
+      if (keyval === Gdk.KEY_Escape) {
+        this.#dictationKeyHeld = false;
+        this.#dictation?.cancel();
+      }
+      return Gdk.EVENT_PROPAGATE;
+    });
+    controller.connect('key-released', (_c, keyval) => {
+      if (keyval !== Gdk.KEY_F9) return;
+      this.#dictationKeyHeld = false;
+      void this.#dictation?.release();
+    });
+    return controller;
+  }
+
   /** Press Stop, through the composer's own handler — so the ordering the widget contributes holds. */
   stop(): void {
     this.#composer.stop();
@@ -1171,6 +1257,7 @@ export class LotsmanChat extends Adw.Bin {
     // First, and not awaited: a voice outlives the widget that started it — the engine is the
     // host's — so a chat torn down mid-sentence would otherwise keep talking with nothing on screen.
     this.#readAloud?.stop();
+    this.#dictation?.cancel();
     this.#probeAbort.abort();
     await this.#probe;
     await this.#agent.shutdown();

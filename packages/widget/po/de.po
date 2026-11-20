@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-10-29 12:53+0100\n"
+"POT-Creation-Date: 2026-11-12 14:14+0100\n"
 "PO-Revision-Date: 2026-10-26 16:35+0100\n"
 "Last-Translator: Pascal Garber\n"
 "Language-Team: German\n"
@@ -57,15 +57,43 @@ msgstr ""
 msgid "Choose…"
 msgstr "Auswählen…"
 
+#: packages/core/src/dictation-view.ts:25
+msgid "Hold to speak. The text is added to the message, not sent."
+msgstr "Gedrückt halten zum Sprechen. Der Text wird der Nachricht hinzugefügt, nicht gesendet."
+
+#: packages/core/src/dictation-view.ts:33
+msgid "Listening… release to transcribe, Esc cancels."
+msgstr "Ich höre zu … Loslassen zum Umschreiben, Esc bricht ab."
+
+#: packages/core/src/dictation-view.ts:36
+msgid "Transcribing…"
+msgstr "Wird umgeschrieben …"
+
+#: packages/core/src/dictation-view.ts:43
+msgid "Downloading the speech model…"
+msgstr "Das Sprachmodell wird geladen …"
+
+#: packages/core/src/dictation-view.ts:51
+msgid "Dictation failed: {message}"
+msgstr "Diktat fehlgeschlagen: {message}"
+
+#: packages/core/src/dictation-view.ts:62
+msgid "Needs {model}, {size}. Click to download."
+msgstr "Benötigt {model}, {size}. Klicken zum Herunterladen."
+
+#: packages/core/src/dictation-view.ts:63
+msgid "Needs {model}. Click to download."
+msgstr "Benötigt {model}. Klicken zum Herunterladen."
+
 #: packages/core/src/empty-state.ts:36
 msgid "No agent found"
 msgstr "Kein Agent gefunden"
 
 #: packages/core/src/empty-state.ts:38
 msgid ""
-"lotsman starts a coding agent but found none on this machine. Install opencode "
-"with the command below, or install lotsman from Flatpak, which bundles one. "
-"Then start lotsman again."
+"lotsman starts a coding agent but found none on this machine. Install "
+"opencode with the command below, or install lotsman from Flatpak, which "
+"bundles one. Then start lotsman again."
 msgstr ""
 "lotsman startet einen Coding-Agenten, hat aber auf diesem Rechner keinen "
 "gefunden. Installiere opencode mit dem Befehl unten oder installiere lotsman "
@@ -149,8 +177,8 @@ msgstr "Dieser Agent kann diese Sitzung nicht wieder öffnen"
 #: packages/core/src/failure.ts:358
 msgid ""
 "It advertises neither session/load nor session/resume, so there is no way "
-"for lotsman to attach it to a conversation that already exists. An agent lotsman "
-"cannot reattach to is refused, not shown as an empty transcript."
+"for lotsman to attach it to a conversation that already exists. An agent "
+"lotsman cannot reattach to is refused, not shown as an empty transcript."
 msgstr ""
 "Er bietet weder session/load noch session/resume an, daher kann lotsman ihn "
 "nicht an eine bereits bestehende Unterhaltung anbinden. Ein Agent, an den "
@@ -242,8 +270,8 @@ msgstr "Verstanden, {id}."
 
 #: packages/core/src/messenger/strings.ts:29
 msgid ""
-"Got it, {id}, but the run failed. `lotsman questions` and the listen log have "
-"the details."
+"Got it, {id}, but the run failed. `lotsman questions` and the listen log "
+"have the details."
 msgstr ""
 "Verstanden, {id}, aber der Lauf ist fehlgeschlagen. `lotsman questions` und "
 "das listen-Log haben die Einzelheiten."
@@ -272,8 +300,8 @@ msgstr "{id} ist noch nicht zugestellt ({reason}); ich versuche es erneut."
 msgid ""
 "{id} not delivered ({reason}); giving up. `lotsman questions` still lists it."
 msgstr ""
-"{id} nicht zugestellt ({reason}); ich gebe auf. `lotsman questions` listet es "
-"weiterhin."
+"{id} nicht zugestellt ({reason}); ich gebe auf. `lotsman questions` listet "
+"es weiterhin."
 
 #: packages/core/src/messenger/strings.ts:38
 msgid ""
@@ -480,7 +508,7 @@ msgstr "der Agent hat eine Frage gestellt, die nicht gespeichert wurde"
 msgid "a request was declined"
 msgstr "eine Anfrage wurde abgelehnt"
 
-#: packages/core/src/task/run.ts:83
+#: packages/core/src/task/run.ts:84
 msgid "there is no task \"{id}\"; `lotsman tasks` lists them"
 msgstr "es gibt keine Aufgabe „{id}“; `lotsman tasks` listet sie auf"
 
@@ -540,40 +568,44 @@ msgstr "Schließen"
 msgid "Dismiss warning"
 msgstr "Warnung schließen"
 
-#: packages/widget/src/chat.ts:615
+#: packages/widget/src/chat.ts:657
 msgid "Working in {path}"
 msgstr "Arbeitet in {path}"
 
-#: packages/widget/src/chat.ts:957 packages/widget/src/provider-settings.ts:200
+#: packages/widget/src/chat.ts:999 packages/widget/src/provider-settings.ts:200
 #: packages/widget/src/provider-settings.ts:203
 msgid "Providers"
 msgstr "Anbieter"
 
-#: packages/widget/src/composer.ts:110
+#: packages/widget/src/composer.ts:114
+msgid "Speak"
+msgstr "Sprechen"
+
+#: packages/widget/src/composer.ts:116
 msgid "Send"
 msgstr "Senden"
 
-#: packages/widget/src/composer.ts:111
+#: packages/widget/src/composer.ts:117
 msgid "Stop"
 msgstr "Stopp"
 
-#: packages/widget/src/composer.ts:112
+#: packages/widget/src/composer.ts:118
 msgid "Conversation"
 msgstr "Gespräch"
 
-#: packages/widget/src/composer.ts:120
+#: packages/widget/src/composer.ts:126
 msgid "Send this message to the agent."
 msgstr "Diese Nachricht an den Agenten senden."
 
-#: packages/widget/src/composer.ts:121
+#: packages/widget/src/composer.ts:127
 msgid "Stop the running turn."
 msgstr "Den laufenden Zug stoppen."
 
-#: packages/widget/src/composer.ts:122
+#: packages/widget/src/composer.ts:128
 msgid "Read the agent's answers aloud."
 msgstr "Die Antworten des Agenten vorlesen."
 
-#: packages/widget/src/composer.ts:125
+#: packages/widget/src/composer.ts:131
 msgid "Ask the agent…"
 msgstr "Den Agenten fragen…"
 
