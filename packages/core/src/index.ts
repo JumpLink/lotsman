@@ -679,6 +679,36 @@ export {
   type SpeechSynthesisLike,
   type SpeechUtteranceLike,
 } from './read-aloud.ts';
+export {
+  RECOGNITION_BUDGET_MS,
+  RECOGNITION_CANDIDATES,
+  MAX_TERMS,
+  TERM_BOOST,
+  dictationInsertion,
+  dictationOffered,
+  formatBytes,
+  recognitionCandidates,
+  termsToPhrases,
+  type CandidateFilter,
+  type ModelNeed,
+  type PcmAudio,
+  type RecognitionAvailability,
+  type RecognitionCandidate,
+  type RecognitionDevice,
+  type Recorder,
+  type SpeechPhrase,
+  type TranscribeOptions,
+  type TranscribeResult,
+  type Transcriber,
+} from './transcribe.ts';
+export {
+  PushToTalk,
+  modelNeedParts,
+  pushToTalk,
+  type PushToTalkOptions,
+  type PushToTalkState,
+} from './push-to-talk.ts';
+export { dictationView, type DictationView } from './dictation-view.ts';
 export { answerQuestion, type AnswerMode, type AnswerResult } from './questions/answer.ts';
 export { cancelOrphanedPermissions } from './questions/ask.ts';
 export {

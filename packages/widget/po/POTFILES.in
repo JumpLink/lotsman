@@ -24,6 +24,7 @@ packages/core/src/custom/file.ts
 packages/core/src/custom/plan.ts
 packages/core/src/custom/settings.ts
 packages/core/src/cwd.ts
+packages/core/src/dictation-view.ts
 packages/core/src/empty-state.ts
 packages/core/src/env.ts
 packages/core/src/failure.ts
@@ -63,6 +64,7 @@ packages/core/src/profile/legacy.ts
 packages/core/src/profile/profile.ts
 packages/core/src/profile/resolve.ts
 packages/core/src/profile/schema.ts
+packages/core/src/push-to-talk.ts
 packages/core/src/questions/answer.ts
 packages/core/src/questions/ask.ts
 packages/core/src/questions/channel.ts
@@ -84,6 +86,7 @@ packages/core/src/task/run.ts
 packages/core/src/task/session.ts
 packages/core/src/task/skill.ts
 packages/core/src/task/task.ts
+packages/core/src/transcribe.ts
 packages/core/src/transcript-items.ts
 packages/core/src/transcript.ts
 packages/core/src/turn.ts

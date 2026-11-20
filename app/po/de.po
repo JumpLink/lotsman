@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eu.jumplink.Lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-10-26 17:59+0100\n"
+"POT-Creation-Date: 2026-11-12 14:14+0100\n"
 "PO-Revision-Date: 2026-10-26 16:35+0100\n"
 "Last-Translator: Pascal Garber\n"
 "Language-Team: German\n"
@@ -58,7 +58,8 @@ msgstr "Frage {label}"
 
 #: app/src/core/answer-view.ts:92
 msgid "There is no question {label}. `lotsman questions` lists the open ones."
-msgstr "Es gibt keine Frage {label}. „lotsman questions“ listet die offenen auf."
+msgstr ""
+"Es gibt keine Frage {label}. „lotsman questions“ listet die offenen auf."
 
 #: app/src/core/answer-view.ts:98
 msgid "from task {task}"
@@ -185,7 +186,8 @@ msgstr "kein Agent verfügbar"
 
 #: app/src/core/settings-view.ts:185
 msgid ""
-"lotsman will not overwrite that file, so choosing an agent is turned off here."
+"lotsman will not overwrite that file, so choosing an agent is turned off "
+"here."
 msgstr ""
 "lotsman überschreibt diese Datei nicht, daher ist die Agentenauswahl hier "
 "abgeschaltet."
@@ -263,11 +265,11 @@ msgstr "* der Standard für --agent"
 
 #: app/src/frontends/cli/answer.ts:70
 msgid ""
-"answer a question from `lotsman questions`; yes/no for a permission, text for "
-"a reply"
+"answer a question from `lotsman questions`; yes/no for a permission, text "
+"for a reply"
 msgstr ""
-"eine Frage aus „lotsman questions“ beantworten; yes/no bei einer Berechtigung, "
-"Text bei einer Rückfrage"
+"eine Frage aus „lotsman questions“ beantworten; yes/no bei einer "
+"Berechtigung, Text bei einer Rückfrage"
 
 #: app/src/frontends/cli/answer.ts:73
 msgid "the question id, like #A1 or A1"
@@ -322,7 +324,7 @@ msgstr ""
 "{program} ist nicht im PATH — installiere es oder ergänze den PATH und "
 "versuche es erneut"
 
-#: app/src/frontends/cli/auth.ts:70 app/src/frontends/cli/cancel.ts:64
+#: app/src/frontends/cli/auth.ts:70 app/src/frontends/cli/cancel.ts:66
 #: app/src/frontends/cli/listen-deps.ts:147 app/src/frontends/cli/resume.ts:96
 #: app/src/frontends/cli/start.ts:90
 msgid "  [agent] {line}"
@@ -372,19 +374,19 @@ msgstr "die abzubrechende Sitzungs-ID"
 msgid "the agent that owns the session"
 msgstr "der Agent, dem die Sitzung gehört"
 
-#: app/src/frontends/cli/cancel.ts:41
+#: app/src/frontends/cli/cancel.ts:42
 msgid ""
-"no session with id {id} and no --agent — `lotsman sessions` lists what lotsman "
-"has"
+"no session with id {id} and no --agent — `lotsman sessions` lists what "
+"lotsman has"
 msgstr ""
 "keine Sitzung mit der ID {id} und kein --agent — „lotsman sessions“ listet "
 "auf, was lotsman kennt"
 
-#: app/src/frontends/cli/cancel.ts:47
+#: app/src/frontends/cli/cancel.ts:49
 msgid "session {id} belongs to agent \"{agent}\", not \"{agentId}\""
 msgstr "Sitzung {id} gehört zum Agenten „{agent}“, nicht zu „{agentId}“"
 
-#: app/src/frontends/cli/cancel.ts:76
+#: app/src/frontends/cli/cancel.ts:78
 msgid "session/cancel sent for {id}"
 msgstr "session/cancel für {id} gesendet"
 
@@ -405,12 +407,15 @@ msgid "chat requests on: {what}"
 msgstr "Chat-Anfragen an: {what}"
 
 #: app/src/frontends/cli/chat-requests.ts:65
-msgid "chat requests reloaded: {what} (a request in progress finishes as it was)"
-msgstr "Chat-Anfragen neu geladen: {what} (eine laufende Anfrage endet, wie sie begonnen hat)"
+msgid ""
+"chat requests reloaded: {what} (a request in progress finishes as it was)"
+msgstr ""
+"Chat-Anfragen neu geladen: {what} (eine laufende Anfrage endet, wie sie "
+"begonnen hat)"
 
 #: app/src/frontends/cli/choose.ts:28 app/src/frontends/cli/listen.ts:182
-#: app/src/frontends/cli/listen.ts:282 app/src/frontends/cli/listen.ts:289
-#: app/src/frontends/cli/listen.ts:301 app/src/frontends/cli/listen.ts:324
+#: app/src/frontends/cli/listen.ts:284 app/src/frontends/cli/listen.ts:291
+#: app/src/frontends/cli/listen.ts:303 app/src/frontends/cli/listen.ts:326
 msgid "  {line}"
 msgstr "  {line}"
 
@@ -425,8 +430,14 @@ msgid "  {note}"
 msgstr "  {note}"
 
 #: app/src/frontends/cli/listen-deps.ts:46
-msgid "The users, profiles and tasks of tasks.json were copied to {dir}, one file or directory each. tasks.json is not read any more and not changed; edit the new files."
-msgstr "Die Nutzer, Profile und Aufgaben aus tasks.json wurden nach {dir} kopiert, je eine Datei oder ein Verzeichnis. tasks.json wird nicht mehr gelesen und nicht geändert; ändere künftig die neuen Dateien."
+msgid ""
+"The users, profiles and tasks of tasks.json were copied to {dir}, one file "
+"or directory each. tasks.json is not read any more and not changed; edit the "
+"new files."
+msgstr ""
+"Die Nutzer, Profile und Aufgaben aus tasks.json wurden nach {dir} kopiert, "
+"je eine Datei oder ein Verzeichnis. tasks.json wird nicht mehr gelesen und "
+"nicht geändert; ändere künftig die neuen Dateien."
 
 #: app/src/frontends/cli/listen-deps.ts:58
 msgid "  {warning}"
@@ -467,19 +478,19 @@ msgid "  {dropped} permission question(s) from an earlier listen cancelled"
 msgstr ""
 "  {dropped} Berechtigungsfrage(n) aus einem früheren listen abgebrochen"
 
-#: app/src/frontends/cli/listen.ts:248
+#: app/src/frontends/cli/listen.ts:249
 msgid ""
 "lotsman listen — listening for chat requests and answers, questions via "
 "{channel}, state in {dir}"
 msgstr ""
-"lotsman listen — hört auf Chat-Anfragen und Antworten, Fragen über {channel}, "
-"Zustand in {dir}"
+"lotsman listen — hört auf Chat-Anfragen und Antworten, Fragen über "
+"{channel}, Zustand in {dir}"
 
-#: app/src/frontends/cli/listen.ts:262
+#: app/src/frontends/cli/listen.ts:264
 msgid "  stopping: {why}"
 msgstr "  wird beendet: {why}"
 
-#: app/src/frontends/cli/listen.ts:305
+#: app/src/frontends/cli/listen.ts:307
 msgid ""
 "  {left} chat request(s) from an earlier listen were not completed; the chat "
 "was told"
@@ -514,7 +525,8 @@ msgstr ""
 "Installation)"
 
 #: app/src/frontends/cli/login.ts:195
-msgid "this opencode has no login API (it needs v2) — run `lotsman auth` instead"
+msgid ""
+"this opencode has no login API (it needs v2) — run `lotsman auth` instead"
 msgstr ""
 "dieses opencode hat keine Login-API (es braucht v2) — führe stattdessen "
 "„lotsman auth“ aus"
@@ -566,7 +578,8 @@ msgstr "abgebrochen."
 #: app/src/frontends/cli/messenger.ts:126
 msgid "show or set the requests `lotsman listen` takes from the chat"
 msgstr ""
-"die Anfragen anzeigen oder festlegen, die `lotsman listen` aus dem Chat annimmt"
+"die Anfragen anzeigen oder festlegen, die `lotsman listen` aus dem Chat "
+"annimmt"
 
 #: app/src/frontends/cli/messenger.ts:129
 msgid "start an agent run for a chat message: on or off"
@@ -785,7 +798,8 @@ msgstr "jeden Werkzeugaufruf ohne Nachfrage ablehnen"
 #: app/src/frontends/cli/resume.ts:61
 msgid "no session with id {id} — `lotsman sessions` lists what lotsman has"
 msgstr ""
-"keine Sitzung mit der ID {id} — „lotsman sessions“ listet auf, was lotsman kennt"
+"keine Sitzung mit der ID {id} — „lotsman sessions“ listet auf, was lotsman "
+"kennt"
 
 #: app/src/frontends/cli/resume.ts:139 app/src/frontends/cli/start.ts:145
 msgid "— {stopReason} —"
@@ -955,18 +969,22 @@ msgstr "Senden"
 msgid "Ctrl+Enter sends, Esc answers later."
 msgstr "Strg+Eingabe sendet, Esc antwortet später."
 
-#: app/src/frontends/gui/main.ts:186
+#: app/src/frontends/gui/dictation-hook.ts:62
+msgid "Speech recognition is not part of this build yet."
+msgstr "Spracherkennung ist noch nicht Teil dieses Builds."
+
+#: app/src/frontends/gui/main.ts:200
 msgid ""
 "An ACP client for GNOME: start a coding agent as a subprocess, watch it "
 "work, and answer the questions it asks. The agent brings its own model, its "
-"own tools and its own login — lotsman shows what it offers and asks before it "
-"acts. The same kernel as the command line."
+"own tools and its own login — lotsman shows what it offers and asks before "
+"it acts. The same kernel as the command line."
 msgstr ""
 "Ein ACP-Client für GNOME: Starte einen Coding-Agenten als Unterprozess, sieh "
 "ihm bei der Arbeit zu und beantworte seine Fragen. Der Agent bringt sein "
-"eigenes Modell, seine eigenen Werkzeuge und seinen eigenen Login mit — lotsman "
-"zeigt, was er anbietet, und fragt, bevor er handelt. Derselbe Kern wie die "
-"Befehlszeile."
+"eigenes Modell, seine eigenen Werkzeuge und seinen eigenen Login mit — "
+"lotsman zeigt, was er anbietet, und fragt, bevor er handelt. Derselbe Kern "
+"wie die Befehlszeile."
 
 #: app/src/frontends/gui/preferences.ts:83
 msgid ""

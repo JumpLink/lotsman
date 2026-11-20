@@ -287,6 +287,13 @@ export interface LotsmanHooks extends FrameworkHooks {
    * use, since a real one would talk out loud on the workstation.
    */
   speech?: boolean;
+
+  /**
+   * `LOTSMAN_APP_DICTATION` — swap the "not available" push-to-talk engine for a fake that records a
+   * quarter second of synthetic silence and answers with a fixed line, so hold → release → text in the
+   * entry can be exercised headless. A flag; it never touches a microphone (`dictation-hook.ts`).
+   */
+  dictation?: boolean;
 }
 
 /**
@@ -345,6 +352,7 @@ export function readHooks(env: Record<string, string | undefined> = process.env)
     modelPolicy: hookList(env, 'MODEL_POLICY'),
     mcp: hookList(env, 'MCP'),
     speech: hookFlag(env, 'SPEECH'),
+    dictation: hookFlag(env, 'DICTATION'),
     thinking: hookFlag(env, 'THINKING'),
     prompt: hookValue(env, 'PROMPT'),
   };

@@ -39,6 +39,16 @@ export { providerOffered, type ModelPolicy } from '@lotsman/core';
 // a host passes its own engine — a browser's `speechSynthesis`, `@gjsify/speech-synthesis`, a fake in
 // a test — and neither this package nor core imports any of them.
 export type { SpeechEngine, SpeechSynthesisLike, SpeechUtteranceLike } from '@lotsman/core';
+// The ports push to talk takes (`LotsmanChatOptions.dictation`): types only, the engine is the host's.
+export type {
+  PcmAudio,
+  RecognitionAvailability,
+  Recorder,
+  SpeechPhrase,
+  TranscribeOptions,
+  TranscribeResult,
+  Transcriber,
+} from '@lotsman/core';
 // What a host is handed when it confirms a tool itself, and what it may say about tools up front.
 export type {
   AlwaysAllowScope,

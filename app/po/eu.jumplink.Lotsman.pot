@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eu.jumplink.Lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-10-26 18:01+0100\n"
+"POT-Creation-Date: 2026-11-12 14:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -186,7 +186,8 @@ msgstr ""
 
 #: app/src/core/settings-view.ts:185
 msgid ""
-"lotsman will not overwrite that file, so choosing an agent is turned off here."
+"lotsman will not overwrite that file, so choosing an agent is turned off "
+"here."
 msgstr ""
 
 #: app/src/core/settings-view.ts:187
@@ -256,8 +257,8 @@ msgstr ""
 
 #: app/src/frontends/cli/answer.ts:70
 msgid ""
-"answer a question from `lotsman questions`; yes/no for a permission, text for "
-"a reply"
+"answer a question from `lotsman questions`; yes/no for a permission, text "
+"for a reply"
 msgstr ""
 
 #: app/src/frontends/cli/answer.ts:73
@@ -303,7 +304,7 @@ msgid ""
 "{program} is not on PATH — install it, or point PATH at it, then try again"
 msgstr ""
 
-#: app/src/frontends/cli/auth.ts:70 app/src/frontends/cli/cancel.ts:64
+#: app/src/frontends/cli/auth.ts:70 app/src/frontends/cli/cancel.ts:66
 #: app/src/frontends/cli/listen-deps.ts:147 app/src/frontends/cli/resume.ts:96
 #: app/src/frontends/cli/start.ts:90
 msgid "  [agent] {line}"
@@ -347,17 +348,17 @@ msgstr ""
 msgid "the agent that owns the session"
 msgstr ""
 
-#: app/src/frontends/cli/cancel.ts:41
+#: app/src/frontends/cli/cancel.ts:42
 msgid ""
-"no session with id {id} and no --agent — `lotsman sessions` lists what lotsman "
-"has"
+"no session with id {id} and no --agent — `lotsman sessions` lists what "
+"lotsman has"
 msgstr ""
 
-#: app/src/frontends/cli/cancel.ts:47
+#: app/src/frontends/cli/cancel.ts:49
 msgid "session {id} belongs to agent \"{agent}\", not \"{agentId}\""
 msgstr ""
 
-#: app/src/frontends/cli/cancel.ts:76
+#: app/src/frontends/cli/cancel.ts:78
 msgid "session/cancel sent for {id}"
 msgstr ""
 
@@ -383,8 +384,8 @@ msgid ""
 msgstr ""
 
 #: app/src/frontends/cli/choose.ts:28 app/src/frontends/cli/listen.ts:182
-#: app/src/frontends/cli/listen.ts:282 app/src/frontends/cli/listen.ts:289
-#: app/src/frontends/cli/listen.ts:301 app/src/frontends/cli/listen.ts:324
+#: app/src/frontends/cli/listen.ts:284 app/src/frontends/cli/listen.ts:291
+#: app/src/frontends/cli/listen.ts:303 app/src/frontends/cli/listen.ts:326
 msgid "  {line}"
 msgstr ""
 
@@ -441,17 +442,17 @@ msgstr ""
 msgid "  {dropped} permission question(s) from an earlier listen cancelled"
 msgstr ""
 
-#: app/src/frontends/cli/listen.ts:248
+#: app/src/frontends/cli/listen.ts:249
 msgid ""
 "lotsman listen — listening for chat requests and answers, questions via "
 "{channel}, state in {dir}"
 msgstr ""
 
-#: app/src/frontends/cli/listen.ts:262
+#: app/src/frontends/cli/listen.ts:264
 msgid "  stopping: {why}"
 msgstr ""
 
-#: app/src/frontends/cli/listen.ts:305
+#: app/src/frontends/cli/listen.ts:307
 msgid ""
 "  {left} chat request(s) from an earlier listen were not completed; the chat "
 "was told"
@@ -480,7 +481,8 @@ msgid "which agent (default: the bundled copy, else your own install)"
 msgstr ""
 
 #: app/src/frontends/cli/login.ts:195
-msgid "this opencode has no login API (it needs v2) — run `lotsman auth` instead"
+msgid ""
+"this opencode has no login API (it needs v2) — run `lotsman auth` instead"
 msgstr ""
 
 #: app/src/frontends/cli/login.ts:210
@@ -892,12 +894,16 @@ msgstr ""
 msgid "Ctrl+Enter sends, Esc answers later."
 msgstr ""
 
-#: app/src/frontends/gui/main.ts:186
+#: app/src/frontends/gui/dictation-hook.ts:62
+msgid "Speech recognition is not part of this build yet."
+msgstr ""
+
+#: app/src/frontends/gui/main.ts:200
 msgid ""
 "An ACP client for GNOME: start a coding agent as a subprocess, watch it "
 "work, and answer the questions it asks. The agent brings its own model, its "
-"own tools and its own login — lotsman shows what it offers and asks before it "
-"acts. The same kernel as the command line."
+"own tools and its own login — lotsman shows what it offers and asks before "
+"it acts. The same kernel as the command line."
 msgstr ""
 
 #: app/src/frontends/gui/preferences.ts:83

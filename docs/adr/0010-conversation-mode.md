@@ -109,6 +109,10 @@ This replaces steps 5–7 of 0009's order of work.
 3. **gjsify**: ADR and packages for `SpeechRecognition` with the measured engines, VAD, and the
    machine-fit parts extracted from Stamped.
 4. **Stage 2**: push to talk, the probe and the candidate choice, the term list.
+   *Status: widget and core landed against fakes (hold **F9** or the microphone button; the text goes
+   into the entry, never sent). The app shows the button disabled until the gjsify
+   `SpeechRecognition` and media-capture release exists; the adapter is one object behind the
+   `Transcriber`/`Recorder` ports.*
 5. **Stage 3**: hands-free with VAD and turn detection, the acknowledgement, spoken permission
    answers.
 6. **Stage 4**: barge-in with echo cancellation.
