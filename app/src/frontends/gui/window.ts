@@ -96,6 +96,7 @@ import {
   WINDOW_MIN_WIDTH_PX,
   WINDOW_WIDTH,
 } from './constants.ts';
+import type { AppDictation } from './dictation-hook.ts';
 import type { LotsmanHooks } from './hooks.ts';
 import { PreferencesDialog, type PreferencesActions } from './preferences.ts';
 import { SessionList } from './session-list.ts';
@@ -212,6 +213,8 @@ export interface MainWindowOptions {
    * app ships no engine, and `main.ts` owns the choice. `LOTSMAN_APP_SPEECH` passes a silent one.
    */
   readonly speech?: SpeechEngine;
+  /** Push to talk's recogniser and microphone, handed to the widget unchanged. `main.ts` owns the choice. */
+  readonly dictation?: AppDictation;
   /** The clock, injected so a screenshot run is the only place a real one is used. */
   readonly now?: () => string;
 }
@@ -356,6 +359,7 @@ export class MainWindow extends Adw.ApplicationWindow {
       ...(options.mcpServers ? { mcpServers: options.mcpServers } : {}),
       ...(options.modelPolicy ? { modelPolicy: options.modelPolicy } : {}),
       ...(options.speech ? { speech: options.speech } : {}),
+      ...(options.dictation ? { dictation: options.dictation } : {}),
       // lotsman's own window: the person's own servers are theirs to add (#17).
       allowCustomProviders: true,
       ...(options.noAgent ? { noAgent: options.noAgent } : {}),

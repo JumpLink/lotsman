@@ -63,6 +63,7 @@ import { runAnswerWindow } from './answer-window.ts';
 import { APP_CSS } from './css.ts';
 import { readHooks } from './hooks.ts';
 import { modelPolicyFromHook } from './model-policy-hook.ts';
+import { dictationFromHook } from './dictation-hook.ts';
 import { speechFromHook } from './speech-hook.ts';
 import { MainWindow } from './window.ts';
 import { APP_ID, APP_NAME, APP_VERSION } from './constants.ts';
@@ -176,6 +177,11 @@ const modelPolicy = modelPolicyFromHook(hooks.modelPolicy ?? []);
  * `LOTSMAN_APP_MODEL_POLICY` stands in for a policy, and what it builds is silent: `speech-hook.ts`.
  */
 const speech = speechFromHook(hooks.speech ?? false);
+/**
+ * Push to talk: the app has no recogniser or microphone adapter until the gjsify release exists, so
+ * the button is offered disabled with the reason in its tooltip; `LOTSMAN_APP_DICTATION` swaps in a fake.
+ */
+const dictation = dictationFromHook(hooks.dictation ?? false);
 
 // Dev hook only: inert stdio entries, named after `LOTSMAN_APP_MCP`, to show the per-conversation toggles.
 const mcpServers = (hooks.mcp ?? []).map((name) => ({ name, command: 'true', args: [], env: [] }));
@@ -221,6 +227,7 @@ const status = await runAdwaitaApp({
       newChat: cwd ? { cwd, home: facts.home } : null,
       ...(modelPolicy ? { modelPolicy } : {}),
       ...(speech ? { speech } : {}),
+      dictation,
       ...(mcpServers.length > 0 ? { mcpServers } : {}),
       // **Only when no agent is pinned.** `LOTSMAN_APP_AGENT` means "this agent, for everything in this window"
       // — a fixture record naming `opencode` must be answered by the stand-in, not start a real one.

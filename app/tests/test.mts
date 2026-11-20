@@ -85,6 +85,8 @@ import toolLine from './unit/gui/tool-line.test.ts';
 
 import speakable from './unit/core/speakable.test.ts';
 import readAloud from './unit/core/read-aloud.test.ts';
+import pushToTalk from './unit/core/push-to-talk.test.ts';
+import dictationHook from './unit/gui/dictation-hook.test.ts';
 
 import i18n from './unit/i18n.test.ts';
 import smoke from './unit/smoke.test.ts';
@@ -167,6 +169,8 @@ run({
   toolLine,
   speakable,
   readAloud,
+  pushToTalk,
+  dictationHook,
   i18n,
   smoke,
 });

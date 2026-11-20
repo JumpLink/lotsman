@@ -44,12 +44,14 @@ app/src/frontends/cli/terminal.ts
 app/src/frontends/gui/answer-window.ts
 app/src/frontends/gui/constants.ts
 app/src/frontends/gui/css.ts
+app/src/frontends/gui/dictation-hook.ts
 app/src/frontends/gui/hooks.ts
 app/src/frontends/gui/hook-value.ts
 app/src/frontends/gui/main.ts
 app/src/frontends/gui/model-policy-hook.ts
 app/src/frontends/gui/preferences.ts
 app/src/frontends/gui/session-list.ts
+app/src/frontends/gui/speech-hook.ts
 app/src/frontends/gui/window.blp
 app/src/frontends/gui/window.ts
 app/src/i18n-gettext.ts
