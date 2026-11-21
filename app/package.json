@@ -1,6 +1,6 @@
 {
   "name": "lotsman-cli",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "license": "AGPL-3.0-or-later",
   "private": true,
   "type": "module",
@@ -115,10 +115,10 @@
   "dependencies": {
     "@gjsify/media-capture": "0.64.53",
     "@gjsify/speech-recognition": "0.64.53",
-    "@lotsman/acp": "^0.6.0",
-    "@lotsman/core": "^0.6.0",
-    "@lotsman/session": "^0.6.0",
-    "@lotsman/widget": "^0.6.0",
+    "@lotsman/acp": "^0.7.0",
+    "@lotsman/core": "^0.7.0",
+    "@lotsman/session": "^0.7.0",
+    "@lotsman/widget": "^0.7.0",
     "yargs": "^18.1.0"
   },
   "devDependencies": {
