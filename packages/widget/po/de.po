@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-11-12 14:14+0100\n"
+"POT-Creation-Date: 2026-11-20 23:09+0100\n"
 "PO-Revision-Date: 2026-10-26 16:35+0100\n"
 "Last-Translator: Pascal Garber\n"
 "Language-Team: German\n"
@@ -59,29 +59,31 @@ msgstr "Auswählen…"
 
 #: packages/core/src/dictation-view.ts:25
 msgid "Hold to speak. The text is added to the message, not sent."
-msgstr "Gedrückt halten zum Sprechen. Der Text wird der Nachricht hinzugefügt, nicht gesendet."
+msgstr ""
+"Gedrückt halten zum Sprechen. Der Text wird der Nachricht hinzugefügt, nicht "
+"gesendet."
 
 #: packages/core/src/dictation-view.ts:33
 msgid "Listening… release to transcribe, Esc cancels."
 msgstr "Ich höre zu … Loslassen zum Umschreiben, Esc bricht ab."
 
-#: packages/core/src/dictation-view.ts:36
+#: packages/core/src/dictation-view.ts:41
 msgid "Transcribing…"
 msgstr "Wird umgeschrieben …"
 
-#: packages/core/src/dictation-view.ts:43
+#: packages/core/src/dictation-view.ts:49
 msgid "Downloading the speech model…"
 msgstr "Das Sprachmodell wird geladen …"
 
-#: packages/core/src/dictation-view.ts:51
+#: packages/core/src/dictation-view.ts:57
 msgid "Dictation failed: {message}"
 msgstr "Diktat fehlgeschlagen: {message}"
 
-#: packages/core/src/dictation-view.ts:62
+#: packages/core/src/dictation-view.ts:74
 msgid "Needs {model}, {size}. Click to download."
 msgstr "Benötigt {model}, {size}. Klicken zum Herunterladen."
 
-#: packages/core/src/dictation-view.ts:63
+#: packages/core/src/dictation-view.ts:75
 msgid "Needs {model}. Click to download."
 msgstr "Benötigt {model}. Klicken zum Herunterladen."
 
@@ -577,35 +579,27 @@ msgstr "Arbeitet in {path}"
 msgid "Providers"
 msgstr "Anbieter"
 
-#: packages/widget/src/composer.ts:114
+#: packages/widget/src/composer.ts:46
 msgid "Speak"
 msgstr "Sprechen"
 
-#: packages/widget/src/composer.ts:116
+#: packages/widget/src/composer.ts:47
 msgid "Send"
 msgstr "Senden"
 
-#: packages/widget/src/composer.ts:117
+#: packages/widget/src/composer.ts:48
 msgid "Stop"
 msgstr "Stopp"
 
-#: packages/widget/src/composer.ts:118
+#: packages/widget/src/composer.ts:49
 msgid "Conversation"
 msgstr "Gespräch"
 
-#: packages/widget/src/composer.ts:126
-msgid "Send this message to the agent."
-msgstr "Diese Nachricht an den Agenten senden."
-
-#: packages/widget/src/composer.ts:127
-msgid "Stop the running turn."
-msgstr "Den laufenden Zug stoppen."
-
-#: packages/widget/src/composer.ts:128
+#: packages/widget/src/composer.ts:50
 msgid "Read the agent's answers aloud."
 msgstr "Die Antworten des Agenten vorlesen."
 
-#: packages/widget/src/composer.ts:131
+#: packages/widget/src/composer.ts:51
 msgid "Ask the agent…"
 msgstr "Den Agenten fragen…"
 
@@ -932,3 +926,9 @@ msgstr "Fehlgeschlagen"
 #: packages/widget/src/transcript-view.ts:712
 msgid "Tool call"
 msgstr "Werkzeugaufruf"
+
+#~ msgid "Send this message to the agent."
+#~ msgstr "Diese Nachricht an den Agenten senden."
+
+#~ msgid "Stop the running turn."
+#~ msgstr "Den laufenden Zug stoppen."

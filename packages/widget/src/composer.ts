@@ -1,138 +1,58 @@
 /**
  * The composer: the message entry and the buttons under the conversation.
  *
- * **It is a bottom bar, not a child of the transcript.** Plan §3 draws the composer under the
- * conversation and §7 step 4 puts it in "the bottom bar of the per-session view's own
- * `Adw.ToolbarView`". Both are about the same thing and the difference is load-bearing: a bottom bar
- * does not move when the transcript scrolls, so the text being written stays where it was written
- * while the conversation moves under it. It is also one of the three things `createNavShell` cannot
- * host, which is the measured reason the shell is hand-built (`window.ts`'s header).
+ * **It is a bottom bar, not a child of the transcript.** A bottom bar does not move when the
+ * transcript scrolls, so the text being written stays where it was written. It is also one of the
+ * three things `createNavShell` cannot host, which is the measured reason the shell is hand-built
+ * (`window.ts`'s header).
  *
- * **`Gtk.TextView`, not `Gtk.Entry` and not `Adw.Entry`.** A prompt one line tall is a prompt a person
- * cannot write a stack trace into, and a multi-line box that grows to a limit is what every chat
- * surface this window is drawn from does. `Gtk.Entry` cannot wrap at all. Growth is capped by a
- * `Gtk.ScrolledWindow` rather than by the entry's own height, because a `Gtk.TextView` in an
- * unconstrained box asks for its whole natural height — a hundred-line paste would push the transcript
- * and the header bar off the window.
+ * **The field, the Send/Stop button and the rounded bar are gjsify's own**: `ComposerBar`,
+ * `ChatEntry` and `ChatActionButton` from `@gjsify/adwaita-extended`, shared with Curlew. This file
+ * only decides what they show. Read-aloud and push to talk are slot buttons in the bar's end slot;
+ * the agent's settings row sits under the bar.
  *
- * **The rounded frame is a `Gtk.Box` with Adwaita's `card` plus one class of our own, not a
- * `Gtk.Frame`.** `GtkFrame` draws a border and a title gap and nothing in Adwaita turns it into the
- * rounded surface this needs. `card` is the toolkit's own name for an inset surface and brings the
- * background, the shadow and both colour schemes with it; `.lotsman-composer-frame` only widens the
- * radius and sets the margins that lift the card off the window's edges. Together with the bottom
- * bar's `flat` style (`window.blp`) that is what makes the composer read as one object floating in
- * the pane rather than as a strip welded to the bottom of the window.
+ * **The button is one widget whose action is swapped, never two widgets shown and hidden.**
+ * `composerView` returns one action and `ChatActionButton.setAction` keeps icon, tooltip and
+ * accessible label in step. The label is never blank: it is the action's own name, plus the reason
+ * when `composerView` has one.
  *
- * **The card has two lines: the entry across the top, then the agent's settings and Send.** The
- * config row used to be its own strip above the composer in a box of the template's; it is now
- * `ComposerOptions.config`, packed inside this card along its bottom edge, which is where the model
- * picker sits in every chat surface this window is drawn from. The win is that there is one object at
- * the bottom of the pane instead of two stacked ones — and the entry gets the card's full width
- * because the button came out of its row. What the move cost is the row's per-control captions, and
- * `config-row.ts` records the measurement that forced that.
+ * **Nothing here is markup.** `ChatEntry` wraps a `Gtk.TextView`, which has no markup rendering, and
+ * the status line is a plain label.
  *
- * **Nothing here is markup, and that is structural rather than a flag.** The Send button's label is
- * our own word. The entry is a `Gtk.TextView`, which has no markup rendering at all — there is no
- * `set_use_markup` anywhere near a typed message. The one label that *could* have taken somebody
- * else's words is `#status`, and it passes `useMarkup: false` **in the constructor**, because Pango
- * parses on assignment: `css.ts` and `transcript-view.ts` both record that a later
- * `set_use_markup(false)` is too late.
- *
- * **The placeholder is a label in a `Gtk.Overlay`, because `Gtk.TextView:placeholder-text` does not
- * exist.** This file used to claim it did on GTK 4.22.5 and set it through a cast past the
- * `@girs/gtk-4.0` typings — and both halves of that were wrong in the same way. In GJS an assignment
- * to a name that is not a GObject property silently creates a plain JS field, so the line did nothing
- * and nothing said so; `scripts/probes/composer-props.mjs` "measured" it by doing exactly that and
- * reading the field back, which is a probe that cannot fail. `GObject.Object.find_property` is the
- * question that has an answer: `placeholder-text` is `null` on `Gtk.TextView` and a real `ParamSpec`
- * on `Gtk.Entry`, on this GTK. So the hint is drawn: one dim label over the entry, `canTarget: false`
- * so a click still lands in the text, hidden by the buffer's own `changed` signal the moment there is
- * anything to read.
- *
- * **The button is one widget whose content is swapped, never two widgets shown and hidden.** Two
- * buttons in one spot means two tab stops, two tooltips and a `Gtk.Stack` to keep in step with the
- * turn state. `composerView` returns one action and the button's own `iconName` is set from it.
- *
- * **It is icon-only and circular, so the word it dropped lives in the tooltip and the accessible
- * name.** Those two were always set from `composerView`'s reason; what changed is that they are now
- * the *only* place the action is named, which is why `#render` falls back to `SEND_LABEL`/`STOP_LABEL`
- * rather than ever assigning an empty string to either.
- *
- * **Two lines under the entry, and only one of them is ever visible at a time.** `ComposerView.reason`
- * explains a *disabled* control and is therefore empty exactly when the button works; `ComposerView.status`
- * says what is happening when there is nothing to disable. One merged label rather than two stacked
- * ones: with a dead agent and no session both have something to say, and two sentences under an entry
- * read as two problems when there is one.
- *
- * **`clearDraft` is a method rather than a side effect of `setState`, for one reason.** Whether a
- * draft survives a state change is a decision, and it lives in `core/composer-state.ts` as
- * `keepsDraft`. A widget that quietly emptied the entry whenever the state changed would put that
- * decision in the widget, where it could not be tested without a display — and the window would have to
- * remember to ask instead of being unable to forget.
+ * **`clearDraft` is a method rather than a side effect of `setState`.** Whether a draft survives a
+ * state change is a decision, and it lives in `core/composer-state.ts` as `keepsDraft`.
  */
 
 import Adw from '@girs/adw-1';
-import Gdk from '@girs/gdk-4.0';
+import GObject from '@girs/gobject-2.0';
 import Gtk from '@girs/gtk-4.0';
+import { ComposerBar } from '@gjsify/adwaita-extended';
 
 import { _, composerView, dictationInsertion, type ComposerInput, type DictationView } from '@lotsman/core';
 import { CONTENT_MAX_WIDTH_PX } from './constants.ts';
-import { CSS } from './css.ts';
 
 /**
- * The Send icon. **`send-symbolic` and `arrow-up-symbolic` do not exist** — both checked with
- * `Gtk.IconTheme.has_icon` and recorded in `scripts/probes/icon-names.mjs`, alongside the names that
- * do: `go-up-symbolic` (used here), `mail-send-symbolic` and `process-stop-symbolic` (used for Stop).
- *
- * **An arrow rather than the paper plane, because the button is now a circle with nothing else in
- * it.** `mail-send-symbolic` is an envelope-and-arrow, which at 16 px inside a 34 px disc is a shape
- * nobody reads as one glyph — and it says *mail*, which this is not. The up arrow is what every
- * surface this composer is drawn from puts in that circle, and it is the one icon that still means
- * "send this" with the word removed.
- *
- * The names are constants rather than inline strings for the reason the probe exists: a name the
- * Adwaita theme does not have renders as a broken-image placeholder, which is exactly what a
- * screenshot then shows as an unexplained gap. Verified on GTK 4.22.5 / libadwaita 1.9.3.
+ * The Send icon. **`send-symbolic` and `arrow-up-symbolic` do not exist** — checked with
+ * `Gtk.IconTheme.has_icon` and recorded in `scripts/probes/icon-names.mjs`. An up arrow rather than
+ * the paper plane: inside a round button an envelope-and-arrow is not read as one glyph.
  */
 const SEND_ICON = 'go-up-symbolic';
 /** The Stop icon. A filled square, which is what stopping a running turn looks like. */
 const STOP_ICON = 'process-stop-symbolic';
-/**
- * The read-aloud toggle's icon. **`speaker-symbolic` does not exist** — checked with
- * `Gtk.IconTheme.has_icon` like the two above and recorded in `scripts/probes/icon-names.mjs`
- * alongside the names that do: `audio-speakers-symbolic` (used here) and the `audio-volume-*` family.
- *
- * The speakers rather than a volume glyph, because the toggle is not a volume control: a
- * `audio-volume-high-symbolic` next to a mute-looking inactive state invites a person to drag it.
- */
+/** **`speaker-symbolic` does not exist**; `audio-speakers-symbolic` does, and is not a volume control. */
 const READ_ALOUD_ICON = 'audio-speakers-symbolic';
-/**
- * The microphone. `audio-input-microphone-symbolic` is in Adwaita's symbolic set; it is listed in
- * `scripts/probes/icon-names.mjs` with the others so a theme without it is caught there.
- */
 const DICTATION_ICON = 'audio-input-microphone-symbolic';
+/** Labels are functions, not constants: a lookup at module load would run before a translator registers. */
 const dictationLabel = () => _('Speak');
-/** Button labels. Functions, not constants: a lookup at module load would run before a translator registers. */
 const sendLabel = () => _('Send');
 const stopLabel = () => _('Stop');
 const readAloudLabel = () => _('Conversation');
-/**
- * Tooltips for the two buttons while they are **working**.
- *
- * Needed because `composerView` returns `''` for a sensitive button, and `''` as a tooltip is no
- * tooltip: without these the Send button is the one control in the window with nothing to say about
- * itself. Translated at use, never at load.
- */
-const sendTooltip = () => _('Send this message to the agent.');
-const stopTooltip = () => _('Stop the running turn.');
 const readAloudTooltip = () => _("Read the agent's answers aloud.");
-
-/** What the empty entry says. Translated at use, never at load. */
 const placeholder = () => _('Ask the agent…');
-/** The entry's resting height in logical pixels: two lines, so "write a prompt" is visibly possible. */
-const ENTRY_MIN_HEIGHT = 56;
-/** Where the entry stops growing and starts scrolling. A window's bottom bar has a budget. */
-const ENTRY_MAX_HEIGHT = 180;
+
+/** Visible lines of the entry: the resting height and where it stops growing and starts scrolling. */
+const ENTRY_MIN_LINES = 2;
+const ENTRY_MAX_LINES = 7;
 
 export interface ComposerOptions {
   /**
@@ -183,17 +103,12 @@ export class Composer {
   /** Pack this into the `Adw.ToolbarView` as its bottom bar. */
   readonly widget: Gtk.Widget;
 
-  readonly #entry: Gtk.TextView;
-  /** The hint drawn over an empty entry. See the file header on why it is not a property. */
-  readonly #placeholder: Gtk.Label;
-  readonly #button: Gtk.Button;
+  readonly #bar: ComposerBar;
   /** The read-aloud toggle, or `null` when the host offered no speech engine. */
   readonly #readAloud: Gtk.ToggleButton | null;
   /** The microphone button, or `null` when the host offered no recogniser. */
   readonly #dictation: Gtk.Button | null;
   #dictationView: DictationView | null = null;
-  /** The one line under the entry: the reason, or the status, never both. See the file header. */
-  readonly #status: Gtk.Label;
   readonly #onSend: ((text: string) => void) | undefined;
   readonly #onStop: (() => void) | undefined;
   readonly #onReadAloud: ((on: boolean) => void) | undefined;
@@ -207,160 +122,50 @@ export class Composer {
     this.#onStop = options.onStop;
     this.#onReadAloud = options.onReadAloud;
 
-    this.#entry = new Gtk.TextView({
-      // Word *or* character: a long path or a shell command has no spaces to break on, and an
-      // unwrapped line in a 360 px window is a horizontal scroll nobody asked for.
-      wrapMode: Gtk.WrapMode.WORD_CHAR,
-      leftMargin: 8,
-      rightMargin: 8,
-      topMargin: 8,
-      bottomMargin: 8,
-      // `acceptsTab` stays at its default `true`: Tab in a text view inserts a tab character and that
-      // is correct — the person is writing text, and taking Tab away would strand keyboard
-      // navigation inside the composer, which at the 360 px phone floor has nowhere else to go.
-      cssClasses: [CSS.composerEntry],
-    });
-    // Enter sends, Shift+Enter does not — the convention in every chat surface this window is drawn
-    // from, and without it a multi-line entry is a trap: the person types what looks like a message
-    // and gets a newline instead. It goes through the SAME `#activate()` as the button, so there is
-    // one send path rather than two that can disagree.
-    this.#entry.add_controller(this.#enterToSend());
+    this.#bar = new ComposerBar();
+    this.#bar.entry.setPlaceholder(placeholder());
+    this.#bar.entry.setLines(ENTRY_MIN_LINES, ENTRY_MAX_LINES);
+    // Enter sends, Shift/Ctrl+Enter breaks the line (the entry decides). It goes through the SAME
+    // `#activate()` as the button, so there is one send path rather than two that can disagree.
+    // A signal registered through `registerClass` is not in the generated signatures.
+    (this.#bar.entry as GObject.Object).connect('submit' as never, () => this.#activate());
+    this.#bar.actionButton.connect('clicked', () => this.#activate());
 
-    const scroller = new Gtk.ScrolledWindow({
-      child: this.#entry,
-      hexpand: true,
-      // NEVER: a composer that scrolls sideways is a line of text that refused to wrap.
-      hscrollbarPolicy: Gtk.PolicyType.NEVER,
-      minContentHeight: ENTRY_MIN_HEIGHT,
-      maxContentHeight: ENTRY_MAX_HEIGHT,
-      // The point of the two bounds: the scroller grows *with* the text up to the maximum and no
-      // further. Without this both bounds are advisory and the bottom bar is as tall as the longest
-      // message ever pasted into it.
-      propagateNaturalHeight: true,
-    });
-
-    // The placeholder, over the entry rather than in it — see the file header on the property that
-    // does not exist. The margins are the `Gtk.TextView`'s own text margins, so the hint starts
-    // exactly where the first typed character will.
-    this.#placeholder = new Gtk.Label({
-      // Our own word, but in the constructor like every other label in this window: one rule for
-      // "when is markup decided" beats a rule with an exception for the strings we wrote.
-      useMarkup: false,
-      label: placeholder(),
-      xalign: 0,
-      halign: Gtk.Align.START,
-      valign: Gtk.Align.START,
-      marginStart: 8,
-      marginTop: 8,
-      // Or the hint eats the click that was meant to put the cursor in the entry under it.
-      canTarget: false,
-      cssClasses: [CSS.dim],
-    });
-    const entryArea = new Gtk.Overlay({ child: scroller });
-    entryArea.add_overlay(this.#placeholder);
-    // The buffer's signal and not `#render`: whether there is text is the buffer's fact, and it
-    // changes on every keystroke while `#render` runs on turn-state moves. `clearDraft` goes through
-    // the same buffer, so the hint comes back on its own when the window empties the entry.
-    this.#entry.get_buffer()?.connect('changed', () => this.#syncPlaceholder());
-
-    this.#button = new Gtk.Button({
-      // **Icon only, in a circle, and the label is gone from the button rather than hidden.** It is
-      // still the *one* widget whose content is swapped (see the file header) — what changed is that
-      // one `iconName` is now the whole swap, where an `Adw.ButtonContent` existed only to carry a
-      // word next to the icon. Removing the word is what makes the control a disc on the card's
-      // bottom line instead of a pill that sets that line's height — and at the 360 px floor it is
-      // the ~60 px that lets three config dropdowns share the line with it at all.
-      //
-      // **The word has to survive somewhere, and it does — in `#render`, as the tooltip and as
-      // `AccessibleProperty.LABEL`.** An icon-only button with neither is a control a screen reader
-      // announces as nothing at all, which is a failure that no screenshot shows.
-      iconName: SEND_ICON,
-      // END, and it means something different than it did beside the entry. The button is on the
-      // card's bottom line now, and that line is one row tall until the config row wraps — at the
-      // 360 px floor it is two. `CENTER` then parks the disc in the gap *between* the two rows of
-      // dropdowns; `END` keeps it on the card's inside corner, which is where it is at every other
-      // width.
-      valign: Gtk.Align.END,
-      // `circular` is Adwaita's own name for the shape, so it follows the theme's metrics rather than
-      // a radius this file would then have to keep in step with the button's padding.
-      cssClasses: ['circular'],
-    });
-    this.#button.connect('clicked', () => this.#activate());
-
-    this.#status = new Gtk.Label({
-      // In the constructor, and the reason is in the file header: Pango parses on assignment, so a
-      // later `set_use_markup(false)` is too late (measured, `css.ts`).
-      useMarkup: false,
-      xalign: 0,
-      wrap: true,
-      label: '',
-      cssClasses: [CSS.composerStatus, 'caption'],
-    });
-
-    // **The card's bottom line: the agent's settings on the left, Send on the right.** The settings
-    // side hexpands and the button does not, so the disc is pinned to the card's inside corner at
-    // every width.
-    //
-    // The wrapper is what makes that true in *both* windows, and it is not decoration: `hexpand` on a
-    // hidden widget buys nothing, and the config row hides itself whenever the agent offers no
-    // settings (`config-row.ts`). Packed directly, it then handed the whole line to the button and the
-    // disc moved from the card's right corner to its left — between two windows that are otherwise
-    // the same composer. The wrapper is always visible, so it holds the space either way.
-    const settings = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true });
-    settings.append(options.config);
-
-    const controls = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 6 });
-    controls.append(settings);
-    // **The read-aloud toggle sits beside Send, and only when there is something to toggle.** Next to
-    // Send rather than in the header bar, because it belongs to this conversation the way the model
-    // picker on the same line does — and because the header bar is the one place a 360 px window has
-    // no room left. `flat` and not `suggested-action`: Adwaita draws a checked flat button as filled
-    // on its own, so the on state reads without competing with the Send disc for the accent colour.
+    // Read-aloud and push to talk are slot buttons, and only when there is something to use.
     this.#readAloud = this.#onReadAloud ? this.#buildReadAloud() : null;
-    if (this.#readAloud) controls.append(this.#readAloud);
+    if (this.#readAloud) this.#bar.addEnd(this.#readAloud);
     this.#dictation =
       options.onDictationPress && options.onDictationRelease
         ? this.#buildDictation(options.onDictationPress, options.onDictationRelease)
         : null;
-    if (this.#dictation) controls.append(this.#dictation);
-    controls.append(this.#button);
+    if (this.#dictation) this.#bar.addEnd(this.#dictation);
 
-    // **One inset for the whole card, and the two lines inside it.** Even on all four sides: the card
-    // is the surface, so the inset is the card's padding and a wider left margin than top margin
-    // would read as a text box inside a card rather than as one control. The entry's own 8 px text
-    // margins sit inside this.
-    const inner = new Gtk.Box({
-      orientation: Gtk.Orientation.VERTICAL,
-      spacing: 6,
-      marginTop: 6,
+    // The bar lifts off the window's edges by margins, bottom larger than top: below it there is only
+    // the window edge, above it the transcript's own margin. The bottom bar is `flat` (`chat.blp`).
+    this.#bar.set_margin_top(6);
+    this.#bar.set_margin_bottom(12);
+    this.#bar.set_margin_start(12);
+    this.#bar.set_margin_end(12);
+
+    // **The agent's settings under the bar.** The wrapper is always visible: the config row hides
+    // itself whenever the agent offers no settings (`config-row.ts`), and the column must not shift.
+    const settings = new Gtk.Box({
+      orientation: Gtk.Orientation.HORIZONTAL,
+      hexpand: true,
+      marginStart: 12,
+      marginEnd: 12,
       marginBottom: 6,
-      marginStart: 6,
-      marginEnd: 6,
     });
-    inner.append(entryArea);
-    inner.append(controls);
+    settings.append(options.config);
 
-    const column = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 2 });
-    column.append(inner);
-    column.append(this.#status);
+    const column = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+    column.append(this.#bar);
+    column.append(settings);
 
-    // `append`, not `child:` constructor property: `Gtk.Box` has no such property (only
-    // `Gtk.ScrolledWindow` and `Adw.Clamp` do), and `window.ts`'s `buildSidebar` builds its box the
-    // same way.
-    const frame = new Gtk.Box({
-      orientation: Gtk.Orientation.VERTICAL,
-      cssClasses: ['card', CSS.composerFrame],
-    });
-    frame.append(column);
-
-    // **The same clamp maximum as the transcript, imported rather than written out.** Plan §3 asks for
-    // one maximum line width, and the conversation and the thing you type into it are one column: two
-    // clamps with two constants that happen to be equal is a coincidence that survives exactly until
-    // somebody changes one of them. Below the tightening threshold the clamp hands its child the
-    // pane's full width unchanged, which is what the 360 px phone floor gets; above it, an unconstrained entry
-    // would stretch across an ultrawide and put the cursor nowhere near the answers it is answering.
+    // **The same clamp maximum as the transcript, imported rather than written out**: the
+    // conversation and the thing you type into it are one column.
     this.widget = new Adw.Clamp({
-      child: frame,
+      child: column,
       maximumSize: CONTENT_MAX_WIDTH_PX,
       tighteningThreshold: CONTENT_MAX_WIDTH_PX,
     });
@@ -380,11 +185,7 @@ export class Composer {
   }
 
   /**
-   * Move the toggle without telling the host about it.
-   *
-   * For the other direction: the host turns the feature on, the control has to show it. Without the
-   * guard the `toggled` signal would come straight back as a person's decision, and a host that
-   * mirrored it would have a loop.
+   * Move the toggle without telling the host about it, so a host that mirrors the toggle has no loop.
    */
   setReadAloud(on: boolean): void {
     if (!this.#readAloud || this.#readAloud.active === on) return;
@@ -410,8 +211,8 @@ export class Composer {
    * core's `dictationInsertion`, so words do not run together or double a space.
    */
   insertAtCursor(text: string): void {
-    const buffer = this.#entry.get_buffer();
-    if (!buffer) return;
+    const view = this.#bar.entry.textView;
+    const buffer = view.get_buffer();
     const start = buffer.get_start_iter();
     const end = buffer.get_end_iter();
     const cursor = buffer.get_iter_at_mark(buffer.get_insert());
@@ -422,7 +223,7 @@ export class Composer {
     );
     if (insertion === '') return;
     buffer.insert_at_cursor(insertion, -1);
-    this.#entry.grab_focus();
+    this.#bar.entry.grabFocus();
   }
 
   /**
@@ -446,11 +247,8 @@ export class Composer {
   }
 
   /**
-   * The toggle, named in the tooltip and the accessible label like the Send disc.
-   *
-   * Icon-only in the same circle, so the word it dropped has to survive in both places — see the file
-   * header on why an icon-only button with neither is announced as nothing at all. Neither string is
-   * ever empty here, so the `composerView` fallback dance does not apply.
+   * The toggle, named in the tooltip and the accessible label: an icon-only button with neither is
+   * announced as nothing at all.
    */
   #buildReadAloud(): Gtk.ToggleButton {
     const toggle = new Gtk.ToggleButton({
@@ -470,60 +268,31 @@ export class Composer {
   /**
    * Press the composer's own button, the way a pointer press does.
    *
-   * **`emit('clicked')` and not the callback, and that is the point of this method.** The window holds
-   * `onStop` already and could call it; calling *that* would be a second way to press Stop, and the two
-   * would drift the moment the button's handler grew a step — which it has, twice: the dialog teardown
-   * with `turn-cancelled` before the cancel, and the clear-draft that follows. Emitting the signal goes
-   * through the one handler a person's click goes through, so a screenshot of `LOTSMAN_APP_STOP` is a
-   * screenshot of the surface rather than of a re-implementation of it.
-   *
-   * **A no-op when the button is not Stop.** `LOTSMAN_APP_STOP` fires on the first tick that finds a running
-   * turn, and the turn may have settled in the meantime; clicking a Send button instead would send a
-   * prompt, which is not what the hook asked for. The action check is the guard, and it is the same
-   * `composerView` answer the button was last rendered from.
+   * **`emit('clicked')` and not the callback**: calling `onStop` directly would be a second way to
+   * press Stop, and the two would drift the moment the handler grew a step. **A no-op when the button
+   * is not Stop**: the turn may have settled since the hook fired, and clicking Send would send a prompt.
    */
   stop(): void {
     if (composerView(this.#input).action !== 'stop') return;
-    this.#button.emit('clicked');
-  }
-
-  /**
-   * Show the hint exactly while the entry is empty. Driven by the buffer, not by `#render`.
-   *
-   * `get_char_count`, **not** `text()`: that one trims, so a buffer holding two spaces would count as
-   * empty and the hint would be drawn on top of them. "Is anything there" and "is there anything to
-   * send" are two questions and only the second one trims.
-   */
-  #syncPlaceholder(): void {
-    this.#placeholder.visible = (this.#entry.get_buffer()?.get_char_count() ?? 0) === 0;
+    this.#bar.actionButton.emit('clicked');
   }
 
   /** Empty the entry. The *caller* decides whether to — see `keepsDraft`. */
   clearDraft(): void {
-    const buffer = this.#entry.get_buffer();
-    if (!buffer) return;
-    // The explicit length, not the one-argument form: `Gtk.TextBuffer.set_text` has wanted both since
-    // GTK 3 and only the two-argument one is in the `@girs` typings this repo compiles against. An
-    // empty string with length 0 is "replace the whole buffer with nothing", which is what is meant.
-    buffer.set_text('', 0);
+    this.#bar.entry.clear();
   }
 
   /** The entry's text, trimmed. Trimmed here so "did I type anything" has exactly one answer. */
   text(): string {
-    // `get_buffer()`, not `getBuffer()`: the GIR declares the setter and the method, and the property
-    // accessor only for widgets whose bindings generated one — `Gtk.TextView` has neither, so the
-    // camelCase form is a compile error and the snake_case one is what compiles and runs.
-    const buffer = this.#entry.get_buffer();
-    if (!buffer) return '';
-    return buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter(), false).trim();
+    return this.#bar.entry.getText().trim();
   }
 
   /**
-   * The one send path.
+   * The one send path, reached from the button and from Enter.
    *
-   * Reached from the button and from Enter, and it asks `composerView` again rather than trusting the
-   * last render: a key press can arrive between a cancel going out and the next frame, and a control
-   * that acts on a stale view is the control-this-window-forbids.
+   * It asks `composerView` again rather than trusting the last render: a key press can arrive
+   * between a cancel going out and the next frame, and a control acting on a stale view is the
+   * control this window forbids.
    */
   #activate(): void {
     const view = composerView(this.#input);
@@ -535,79 +304,31 @@ export class Composer {
     this.#onSend?.(this.text());
   }
 
-  /**
-   * Enter sends; Shift+Enter does not.
-   *
-   * `Gtk.EventControllerKey` rather than a window key handler, because GTK4 has no window events and
-   * the controller's return value is what actually suppresses the newline — `EVENT_STOP`, not
-   * `EVENT_PROPAGATE`, or the newline is inserted *and* the turn is sent.
-   *
-   * Both `KEY_ISO_Enter` and `KEY_KP_Enter` are matched: a laptop at 480 px with an external keyboard
-   * is a real configuration and the keypad Enter is the one a person on it presses.
-   */
-  #enterToSend(): Gtk.EventControllerKey {
-    const controller = new Gtk.EventControllerKey();
-    controller.connect('key-pressed', (_controller, keyval, _keycode, state) => {
-      if (keyval !== Gdk.KEY_ISO_Enter && keyval !== Gdk.KEY_KP_Enter) return Gdk.EVENT_PROPAGATE;
-      const shift = (state & Gdk.ModifierType.SHIFT_MASK) !== 0;
-      if (shift) return Gdk.EVENT_PROPAGATE;
-      this.#activate();
-      return Gdk.EVENT_STOP;
-    });
-    return controller;
-  }
-
-  /**
-   * Render the whole composer from `composerView`.
-   *
-   * Rebuilt rather than diffed, for the reason `SessionList.setSessions` and
-   * `TranscriptView.setEntries` both give: three states, one function, and a half-updated button is
-   * the shape of the bug.
-   */
+  /** Render the whole composer from `composerView`; rebuilt rather than diffed. */
   #render(): void {
     const view = composerView(this.#input);
     const isStop = view.action === 'stop';
+    const name = isStop ? stopLabel() : sendLabel();
 
-    this.#button.iconName = isStop ? STOP_ICON : SEND_ICON;
-    // Swapped, not stacked: `.suggested-action` on Stop would accent "end this turn", and
-    // `.destructive-action` on Send would scare a person about posting a message. A `session/cancel`
-    // deletes nothing — `AGENTS.md` calls it "the protocol's cancellation, not a kill" — so Stop is
-    // styled as the alarming thing it is not, in neither direction.
-    this.#button.remove_css_class('suggested-action');
-    this.#button.remove_css_class('destructive-action');
-    this.#button.add_css_class(isStop ? 'destructive-action' : 'suggested-action');
+    // `ChatActionButton` keeps icon, tooltip and accessible label in step. The label is never blank:
+    // `view.reason` is `''` exactly when the button works, so it is the action's own name plus the
+    // reason when there is one. `suggested` is off for Stop; it is styled destructive instead.
+    const button = this.#bar.actionButton;
+    button.setAction({
+      iconName: isStop ? STOP_ICON : SEND_ICON,
+      label: view.reason ? `${name} — ${view.reason}` : name,
+      sensitive: view.buttonEnabled,
+      suggested: !isStop,
+    });
+    button.remove_css_class('destructive-action');
+    if (isStop) button.add_css_class('destructive-action');
 
-    this.#button.sensitive = view.buttonEnabled;
-    // `composerView` returns an **empty** reason for a button that works — a sentence explaining a
-    // button that is fine is noise — so the tooltip has to fall back to the action itself. Passing
-    // `view.reason` straight through would leave the enabled button with no tooltip at all.
-    this.#button.tooltipText = view.reason || (isStop ? stopTooltip() : sendTooltip());
-    // **The accessible name is never blank.** The same empty-reason rule means `view.reason` is `''`
-    // exactly when the button works, and assigning `''` to `AccessibleProperty.LABEL` would leave a
-    // screen reader announcing an unnamed button — the failure mode is invisible in a screenshot and
-    // total for the person it hits. So: the action's own name, plus the reason when there is one.
-    this.#button.update_property(
-      [Gtk.AccessibleProperty.LABEL],
-      [
-        view.reason
-          ? `${isStop ? stopLabel() : sendLabel()} — ${view.reason}`
-          : isStop
-            ? stopLabel()
-            : sendLabel(),
-      ],
-    );
+    // Editable, not insensitive: a read-only entry keeps its text and its colours.
+    this.#bar.entry.textView.editable = view.entryEditable;
+    this.#bar.entry.tooltipText = view.reason;
 
-    this.#entry.editable = view.entryEditable;
-    this.#entry.tooltipText = view.reason;
-
-    // **On screen, not only on hover.** A reason nobody can see is a reason the surface has not given.
-    // The reason wins over the status: they never both have anything to say (`composerView` returns a
-    // reason only where the button is off), and a disabled control is the more urgent of the two.
-    // The exception is a reason the page above already states (`reasonOnPage`): the tooltip and the
-    // accessible name keep it, the line stays silent.
-    this.#status.label = (view.reasonOnPage ? '' : view.reason) || this.#dictationView?.status || view.status;
-    // With nothing to explain, the line takes no height: an empty caption under the composer is a gap
-    // that reads as a layout bug.
-    this.#status.visible = this.#status.label !== '';
+    // **On screen, not only on hover.** The reason wins over the status; a reason the page above
+    // already states (`reasonOnPage`) stays in the tooltip and the accessible name only.
+    this.#bar.setStatus((view.reasonOnPage ? '' : view.reason) || this.#dictationView?.status || view.status);
   }
 }

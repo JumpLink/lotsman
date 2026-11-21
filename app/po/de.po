@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eu.jumplink.Lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-11-20 23:09+0100\n"
+"POT-Creation-Date: 2026-11-21 10:04+0100\n"
 "PO-Revision-Date: 2026-10-26 16:35+0100\n"
 "Last-Translator: Pascal Garber\n"
 "Language-Team: German\n"
@@ -969,30 +969,30 @@ msgstr "Senden"
 msgid "Ctrl+Enter sends, Esc answers later."
 msgstr "Strg+Eingabe sendet, Esc antwortet später."
 
-#: app/src/frontends/gui/dictation-engine.ts:94
-#: app/src/frontends/gui/dictation-engine.ts:199
-#| msgid "Speech recognition is not part of this build yet."
+#: app/src/frontends/gui/dictation-engine.ts:100
+#: app/src/frontends/gui/dictation-engine.ts:209
 msgid "Speech recognition is not available here: {detail}"
 msgstr "Spracherkennung ist hier nicht verfügbar: {detail}"
 
-#: app/src/frontends/gui/dictation-engine.ts:104
+#: app/src/frontends/gui/dictation-engine.ts:113
 msgid "The speech model is being downloaded. Try again in a moment."
-msgstr "Das Sprachmodell wird gerade heruntergeladen. Bitte gleich noch einmal versuchen."
+msgstr ""
+"Das Sprachmodell wird gerade heruntergeladen. Bitte gleich noch einmal "
+"versuchen."
 
-#: app/src/frontends/gui/dictation-engine.ts:106
-#| msgid "Not found on this machine"
+#: app/src/frontends/gui/dictation-engine.ts:116
 msgid "No speech model fits this machine."
 msgstr "Auf diesem Rechner passt kein Sprachmodell."
 
-#: app/src/frontends/gui/dictation-engine.ts:111
+#: app/src/frontends/gui/dictation-engine.ts:121
 msgid "The speech model could not be installed."
 msgstr "Das Sprachmodell konnte nicht installiert werden."
 
-#: app/src/frontends/gui/dictation-engine.ts:116
+#: app/src/frontends/gui/dictation-engine.ts:126
 msgid "Expected {rate} Hz audio."
 msgstr "Audio mit {rate} Hz erwartet."
 
-#: app/src/frontends/gui/dictation-engine.ts:164
+#: app/src/frontends/gui/dictation-engine.ts:174
 msgid "No microphone could be opened."
 msgstr "Es ließ sich kein Mikrofon öffnen."
 

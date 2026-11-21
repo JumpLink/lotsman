@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eu.jumplink.Lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-11-20 23:09+0100\n"
+"POT-Creation-Date: 2026-11-21 10:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -894,28 +894,28 @@ msgstr ""
 msgid "Ctrl+Enter sends, Esc answers later."
 msgstr ""
 
-#: app/src/frontends/gui/dictation-engine.ts:94
-#: app/src/frontends/gui/dictation-engine.ts:199
+#: app/src/frontends/gui/dictation-engine.ts:100
+#: app/src/frontends/gui/dictation-engine.ts:209
 msgid "Speech recognition is not available here: {detail}"
 msgstr ""
 
-#: app/src/frontends/gui/dictation-engine.ts:104
+#: app/src/frontends/gui/dictation-engine.ts:113
 msgid "The speech model is being downloaded. Try again in a moment."
 msgstr ""
 
-#: app/src/frontends/gui/dictation-engine.ts:106
+#: app/src/frontends/gui/dictation-engine.ts:116
 msgid "No speech model fits this machine."
 msgstr ""
 
-#: app/src/frontends/gui/dictation-engine.ts:111
+#: app/src/frontends/gui/dictation-engine.ts:121
 msgid "The speech model could not be installed."
 msgstr ""
 
-#: app/src/frontends/gui/dictation-engine.ts:116
+#: app/src/frontends/gui/dictation-engine.ts:126
 msgid "Expected {rate} Hz audio."
 msgstr ""
 
-#: app/src/frontends/gui/dictation-engine.ts:164
+#: app/src/frontends/gui/dictation-engine.ts:174
 msgid "No microphone could be opened."
 msgstr ""
 
