@@ -108,7 +108,11 @@ This replaces steps 5–7 of 0009's order of work.
    plus ten real recordings.
 3. **gjsify**: ADR and packages for `SpeechRecognition` with the measured engines, VAD, and the
    machine-fit parts extracted from Stamped.
-4. **Stage 2**: push to talk, the probe and the candidate choice, the term list.
+4. **Stage 2**: push to talk, the probe and the candidate choice, the term list. *Status: the app
+   adapter is wired* (`app/src/frontends/gui/dictation-engine.ts`): `Transcriber` over gjsify
+   `transcribe()` with the offline Parakeet model (fetched through the install path, ~640 MB),
+   `Recorder` over a 16 kHz mono F32 `openPcmSource`. The engine ignores `phrases` for now and a
+   running decode cannot be aborted.
    *Status: widget and core landed against fakes (hold **F9** or the microphone button; the text goes
    into the entry, never sent). The app shows the button disabled until the gjsify
    `SpeechRecognition` and media-capture release exists; the adapter is one object behind the
