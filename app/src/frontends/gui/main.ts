@@ -64,6 +64,7 @@ import { APP_CSS } from './css.ts';
 import { readHooks } from './hooks.ts';
 import { modelPolicyFromHook } from './model-policy-hook.ts';
 import { dictationFromHook } from './dictation-hook.ts';
+import { realDictation } from './dictation-engine.ts';
 import { speechFromHook } from './speech-hook.ts';
 import { MainWindow } from './window.ts';
 import { APP_ID, APP_NAME, APP_VERSION } from './constants.ts';
@@ -178,10 +179,11 @@ const modelPolicy = modelPolicyFromHook(hooks.modelPolicy ?? []);
  */
 const speech = speechFromHook(hooks.speech ?? false);
 /**
- * Push to talk: the app has no recogniser or microphone adapter until the gjsify release exists, so
- * the button is offered disabled with the reason in its tooltip; `LOTSMAN_APP_DICTATION` swaps in a fake.
+ * Push to talk: the real engine (`dictation-engine.ts`: gjsify recognition plus microphone); where the
+ * sherpa backend or model is missing the button is offered disabled with the reason in its tooltip.
+ * `LOTSMAN_APP_DICTATION` swaps in a silent fake (`0`/`false` leaves the real engine).
  */
-const dictation = dictationFromHook(hooks.dictation ?? false);
+const dictation = hooks.dictation ? dictationFromHook(true) : await realDictation();
 
 // Dev hook only: inert stdio entries, named after `LOTSMAN_APP_MCP`, to show the per-conversation toggles.
 const mcpServers = (hooks.mcp ?? []).map((name) => ({ name, command: 'true', args: [], env: [] }));

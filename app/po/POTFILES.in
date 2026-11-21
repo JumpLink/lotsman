@@ -44,6 +44,7 @@ app/src/frontends/cli/terminal.ts
 app/src/frontends/gui/answer-window.ts
 app/src/frontends/gui/constants.ts
 app/src/frontends/gui/css.ts
+app/src/frontends/gui/dictation-engine.ts
 app/src/frontends/gui/dictation-hook.ts
 app/src/frontends/gui/hooks.ts
 app/src/frontends/gui/hook-value.ts

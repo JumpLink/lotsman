@@ -3,9 +3,8 @@
  * stands in for.
  *
  * `LotsmanChat` takes an optional `dictation` (a `Transcriber` and a `Recorder`, ports from core).
- * The real adapter is `@gjsify/speech-recognition` plus `@gjsify/media-capture`, and neither is
- * released yet, so until it is, **the app offers the microphone button disabled**, with the reason in
- * its tooltip (`unavailableDictation`). One object replaces it when the release lands.
+ * The real adapter is `dictation-engine.ts` (`@gjsify/speech-recognition` plus `@gjsify/media-capture`);
+ * this file holds the fake that `LOTSMAN_APP_DICTATION` selects and the "unavailable" shape both share.
  *
  * **The fake never touches a microphone or a speaker.** It "records" a quarter second of synthetic
  * silence and "transcribes" it to a fixed line, so the whole flow — hold, release, text in the entry,
@@ -13,7 +12,9 @@
  * may use.
  */
 
-import { _, type PcmAudio, type Recorder, type Transcriber } from '@lotsman/core';
+import type { PcmAudio, Recorder, Transcriber } from '@lotsman/core';
+
+import { _ } from '../../i18n.ts';
 
 export interface AppDictation {
   readonly transcriber: Transcriber;
@@ -60,9 +61,8 @@ export class FakeTranscriber implements Transcriber {
   }
 }
 
-/** The honest default: no engine yet. `availability()` says why, and the button shows it. */
-export function unavailableDictation(): AppDictation {
-  const reason = _('Speech recognition is not part of this build yet.');
+/** No engine: `availability()` says why, and the button shows it. */
+export function unavailableDictation(reason: string): AppDictation {
   return {
     transcriber: {
       availability: async () => ({ kind: 'unavailable', reason }),
@@ -80,7 +80,9 @@ export function unavailableDictation(): AppDictation {
   };
 }
 
-/** The hook's flag as an engine: the fake when on, the unavailable one otherwise. */
+/** The hook's flag as an engine: the fake when on, an engine that says it is off otherwise. */
 export function dictationFromHook(on: boolean): AppDictation {
-  return on ? { transcriber: new FakeTranscriber(), recorder: new FakeRecorder() } : unavailableDictation();
+  return on
+    ? { transcriber: new FakeTranscriber(), recorder: new FakeRecorder() }
+    : unavailableDictation(_('Dictation is switched off.'));
 }
