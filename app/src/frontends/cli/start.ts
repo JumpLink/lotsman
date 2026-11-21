@@ -26,6 +26,7 @@ import {
 import { createSessionStore } from '@lotsman/session';
 import type { TranscriptEntry } from '@lotsman/session';
 
+import { mcpServersFor } from '../../core/own-mcp.ts';
 import { agentForNew } from './choose.ts';
 import { commandGate } from './gate.ts';
 import { err, out, pickArgv, showUpdate } from './output.ts';
@@ -99,7 +100,7 @@ const command = (paths: LotsmanPaths): CommandModule => ({
       });
       handle = agent;
       const session = await withAuthHint('session/new', () =>
-        agent.client.newSession({ cwd, mcpServers: [] }),
+        agent.client.newSession({ cwd, mcpServers: mcpServersFor(paths.settingsFile) }),
       );
       err(
         fmt(_('{agentInfo} — session {sessionId} in {cwd}'), {

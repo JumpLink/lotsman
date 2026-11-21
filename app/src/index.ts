@@ -28,6 +28,7 @@ import {
   authCommand,
   cancelCommand,
   loginCommand,
+  mcpCommand,
   messengerCommand,
   providerCommand,
   questionsCommand,
@@ -70,6 +71,7 @@ const parseArgs = () =>
     .command(runCommand(paths, listen))
     .command(tasksCommand(paths, listen))
     .command(statusCommand(paths, listen))
+    .command(mcpCommand(paths, listen))
     .demandCommand(1, 'Please provide a command — `lotsman --help` lists them all.')
     .strictCommands()
     .scriptName('lotsman')

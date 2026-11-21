@@ -8,6 +8,7 @@ app/src/core/main.ts
 app/src/core/messenger-state.ts
 app/src/core/migrate.ts
 app/src/core/notices.ts
+app/src/core/own-mcp.ts
 app/src/core/paths.ts
 app/src/core/private-file.ts
 app/src/core/question-actions.ts
@@ -29,6 +30,7 @@ app/src/frontends/cli/index.ts
 app/src/frontends/cli/listen-deps.ts
 app/src/frontends/cli/listen.ts
 app/src/frontends/cli/login.ts
+app/src/frontends/cli/mcp.ts
 app/src/frontends/cli/messenger.ts
 app/src/frontends/cli/output.ts
 app/src/frontends/cli/provider.ts
@@ -41,6 +43,7 @@ app/src/frontends/cli/status.ts
 app/src/frontends/cli/task-commands.ts
 app/src/frontends/cli/tasks.ts
 app/src/frontends/cli/terminal.ts
+app/src/frontends/cli/tools.ts
 app/src/frontends/gui/answer-window.ts
 app/src/frontends/gui/constants.ts
 app/src/frontends/gui/css.ts

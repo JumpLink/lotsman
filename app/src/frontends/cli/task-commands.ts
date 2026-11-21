@@ -171,3 +171,30 @@ export function statusText(report: StatusReport, options: StatusTextOptions = {}
 export function knownTasks(tasksDir: string): ReadonlySet<string> {
   return new Set(listTasks(tasksDir).map((entry) => entry.id));
 }
+
+/**
+ * `/tasks` and `lotsman tasks`, and the agent's tasks tool: the entries and their text, from one read.
+ * The three surfaces differ only in how they carry it (a chat message, a terminal line, a tool result).
+ */
+export function tasksView(listen: ListenPaths): {
+  readonly entries: readonly TaskEntry[];
+  readonly text: string;
+} {
+  const entries = listTasks(listen.tasksDir);
+  return { entries, text: tasksText(entries) };
+}
+
+/** `/status` and `lotsman status`, and the agent's status tool: the report and its text, from one read. */
+export function statusView(
+  listen: ListenPaths,
+  options: { readonly now?: Date; readonly locale?: string } = {},
+): { readonly report: StatusReport; readonly text: string } {
+  const report = statusReport(listen, options.now);
+  return {
+    report,
+    text: statusText(report, {
+      known: knownTasks(listen.tasksDir),
+      ...(options.locale ? { locale: options.locale } : {}),
+    }),
+  };
+}

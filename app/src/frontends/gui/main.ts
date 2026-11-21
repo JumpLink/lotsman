@@ -67,6 +67,7 @@ import { dictationFromHook } from './dictation-hook.ts';
 import { realDictation } from './dictation-engine.ts';
 import { speechFromHook } from './speech-hook.ts';
 import { MainWindow } from './window.ts';
+import { mcpServersFor } from '../../core/own-mcp.ts';
 import { APP_ID, APP_NAME, APP_VERSION } from './constants.ts';
 
 // Pin GTK 4 before libadwaita pulls it in; keep the import referenced. Without this the import looks
@@ -186,7 +187,10 @@ const speech = speechFromHook(hooks.speech ?? false);
 const dictation = hooks.dictation ? dictationFromHook(true) : await realDictation();
 
 // Dev hook only: inert stdio entries, named after `LOTSMAN_APP_MCP`, to show the per-conversation toggles.
-const mcpServers = (hooks.mcp ?? []).map((name) => ({ name, command: 'true', args: [], env: [] }));
+const mcpServers = mcpServersFor(
+  paths.settingsFile,
+  (hooks.mcp ?? []).map((name) => ({ name, command: 'true', args: [], env: [] })),
+);
 
 const status = await runAdwaitaApp({
   applicationId: APP_ID,

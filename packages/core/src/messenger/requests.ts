@@ -80,6 +80,8 @@ export interface ChatRequestsOptions {
   readonly log?: (line: string) => void;
   /** The run itself; tests put a fake here. Default `runRequest`. */
   readonly run?: (request: RequestRun, deps: RunDeps) => Promise<RequestRunResult>;
+  /** Servers added after the settings' own — Lotsman's tool server (ADR 0011). */
+  readonly extraMcpServers?: readonly McpServer[];
 }
 
 export interface ChatRequests {
@@ -224,7 +226,7 @@ export function chatRequests(options: ChatRequestsOptions): ChatRequests {
         {
           profile: settings.profile,
           cwd: settings.cwd.trim() || options.defaultCwd,
-          mcpServers: toMcpServers(settings),
+          mcpServers: [...toMcpServers(settings), ...(options.extraMcpServers ?? [])],
           rights: settings.rights,
           preamble: settings.preamble,
           text: item.text,

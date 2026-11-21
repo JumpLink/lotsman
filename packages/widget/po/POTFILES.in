@@ -86,6 +86,7 @@ packages/core/src/task/run.ts
 packages/core/src/task/session.ts
 packages/core/src/task/skill.ts
 packages/core/src/task/task.ts
+packages/core/src/tool-server.ts
 packages/core/src/transcribe.ts
 packages/core/src/transcript-items.ts
 packages/core/src/transcript.ts

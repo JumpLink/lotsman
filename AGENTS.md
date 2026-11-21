@@ -43,6 +43,7 @@ lotsman questions [--all] [--json]            # what agents are waiting on
 lotsman answer <id> [text..] [--dialog]       # yes/no or reply
 lotsman run <id> [--param k=v] [--json]       # run a task now
 lotsman tasks | status [--json]               # tasks / running, last runs, questions
+lotsman mcp                                # stdio MCP server: read-only lotsman_status / lotsman_tasks (ADR 0011; off: settings `ownMcp:false` or LOTSMAN_MCP=0)
 ```
 
 Full behaviour, bundled-agent precedence and one-turn semantics:

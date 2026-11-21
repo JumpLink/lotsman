@@ -64,6 +64,8 @@ export interface Settings {
   readonly agent: AgentChoice | null;
   /** Absent: every channel on its default. */
   readonly channel?: ChannelSettings;
+  /** Whether sessions get Lotsman's own tool server (`lotsman mcp`, ADR 0011). Absent: on. */
+  readonly ownMcp?: boolean;
 }
 
 export const SETTINGS_VERSION = 1;
@@ -116,7 +118,7 @@ export function parseSettings(raw: string): ParsedSettings {
   const kind: SettingsProblemKind =
     typeof version === 'number' && version > SETTINGS_VERSION ? 'newer-version' : 'invalid';
   for (const key of Object.keys(value)) {
-    if (key !== 'version' && key !== 'agent' && key !== 'channel')
+    if (key !== 'version' && key !== 'agent' && key !== 'channel' && key !== 'ownMcp')
       return { problem: unknownField('', key), kind };
   }
   if (version !== SETTINGS_VERSION) {
@@ -127,8 +129,16 @@ export function parseSettings(raw: string): ParsedSettings {
   }
   const channel = parseChannel(value['channel']);
   if (typeof channel === 'string') return { problem: channel, kind };
+  const ownMcp = value['ownMcp'];
+  if (ownMcp !== undefined && typeof ownMcp !== 'boolean')
+    return { problem: '"ownMcp" must be true or false', kind };
   const withChannel = (agent: AgentChoice | null): ParsedSettings => ({
-    settings: { version: SETTINGS_VERSION, agent, ...(channel ? { channel } : {}) },
+    settings: {
+      version: SETTINGS_VERSION,
+      agent,
+      ...(channel ? { channel } : {}),
+      ...(ownMcp !== undefined ? { ownMcp } : {}),
+    },
   });
   const agent = value['agent'];
   if (agent === undefined || agent === null) return withChannel(null);
