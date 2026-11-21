@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-11-12 14:14+0100\n"
+"POT-Creation-Date: 2026-11-20 23:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -60,23 +60,23 @@ msgstr ""
 msgid "Listening… release to transcribe, Esc cancels."
 msgstr ""
 
-#: packages/core/src/dictation-view.ts:36
+#: packages/core/src/dictation-view.ts:41
 msgid "Transcribing…"
 msgstr ""
 
-#: packages/core/src/dictation-view.ts:43
+#: packages/core/src/dictation-view.ts:49
 msgid "Downloading the speech model…"
 msgstr ""
 
-#: packages/core/src/dictation-view.ts:51
+#: packages/core/src/dictation-view.ts:57
 msgid "Dictation failed: {message}"
 msgstr ""
 
-#: packages/core/src/dictation-view.ts:62
+#: packages/core/src/dictation-view.ts:74
 msgid "Needs {model}, {size}. Click to download."
 msgstr ""
 
-#: packages/core/src/dictation-view.ts:63
+#: packages/core/src/dictation-view.ts:75
 msgid "Needs {model}. Click to download."
 msgstr ""
 
@@ -506,35 +506,27 @@ msgstr ""
 msgid "Providers"
 msgstr ""
 
-#: packages/widget/src/composer.ts:114
+#: packages/widget/src/composer.ts:46
 msgid "Speak"
 msgstr ""
 
-#: packages/widget/src/composer.ts:116
+#: packages/widget/src/composer.ts:47
 msgid "Send"
 msgstr ""
 
-#: packages/widget/src/composer.ts:117
+#: packages/widget/src/composer.ts:48
 msgid "Stop"
 msgstr ""
 
-#: packages/widget/src/composer.ts:118
+#: packages/widget/src/composer.ts:49
 msgid "Conversation"
 msgstr ""
 
-#: packages/widget/src/composer.ts:126
-msgid "Send this message to the agent."
-msgstr ""
-
-#: packages/widget/src/composer.ts:127
-msgid "Stop the running turn."
-msgstr ""
-
-#: packages/widget/src/composer.ts:128
+#: packages/widget/src/composer.ts:50
 msgid "Read the agent's answers aloud."
 msgstr ""
 
-#: packages/widget/src/composer.ts:131
+#: packages/widget/src/composer.ts:51
 msgid "Ask the agent…"
 msgstr ""
 

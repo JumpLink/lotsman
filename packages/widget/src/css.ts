@@ -135,56 +135,7 @@ export const WIDGET_CSS = `
   opacity: 0.72;
 }
 
-/* The composer's card, and this rule is deliberately only the two things Adwaita's \`card\` does not
-   decide. The background, the shadow and both colour schemes come from \`card\` itself (the widget
-   carries both classes, see \`composer.ts\`), where the first version of this rule wrote out an
-   \`alpha(@window_fg_color, …)\` of its own — a second opinion about a surface the theme already
-   names, and one that went flat against the raised bottom bar it sat on.
-
-   The radius is wider than \`card\`'s 12 px because this card is the composer's whole footprint, and a
-   tall surface at a small radius reads as a dialog. It matches \`.lotsman-bubble\`, which is the other
-   thing in this window shaped like a message.
-
-   The margin is what makes it *float*: the bottom bar is \`flat\` now (\`chat.blp\`), so nothing is
-   drawn behind this and the gap is the window's own background. Bottom larger than top, because
-   below it there is only the window edge while above it there is the transcript's own margin. */
-.lotsman-composer-frame {
-  border-radius: 18px;
-  margin: 6px 12px 12px 12px;
-}
-
-/* The entry itself. Nothing visual: the frame is the surface and the text needs no class of its own,
-   which is why this rule is a marker rather than a style. It exists so the two are independently
-   targetable — the frame's background belongs to the window, the entry's text does not — and so a
-   future monospace mode has one place to land. */
-.lotsman-composer-entry {
-  background-color: transparent;
-}
-
-/* The composer's status line: why the button is disabled, or what is happening right now. Caption-sized
-   because it is the quietest thing in the bottom bar — \`margin-top\` is 0 because the vertical box
-   already has \`spacing: 2\`; a second gap is two gaps.
-
-   NO \`opacity\` here, and that is deliberate rather than an oversight. \`.lotsman-composer-reason\` was
-   dimmed as a rule (\`composerReason\`), which was right when the line only ever said "here is what is
-   wrong". A *running* turn is not that: "Working — the agent is answering" at 55% opacity reads as a
-   disabled caption rather than as the window telling them to wait, and the whole job of the line is to
-   distinguish the two. The dimming now happens per-render instead, where the surface knows which of the
-   two it is drawing — see \`Composer.#render\`. */
-.lotsman-composer-status {
-  margin-top: 0;
-  margin-bottom: 6px;
-  /* \`margin-left\`/\`margin-right\`, not the GTK 3 names \`margin-start\`/\`margin-end\`: GTK 4 has no
-     logical margins in CSS, and the parser rejects them with "No property named …" **while still
-     loading the rest of the stylesheet** — so the sheet works and the warning is easy to miss. Both
-     logical names were measured as a warning on GTK 4.22.5. */
-  /* 14px lines the caption up with the entry's first character: the composer's row is inset 6 px
-     inside the card and the \`Gtk.TextView\` adds 8 px of its own text margin. A number that does not
-     add up to those two is a caption that hangs under nothing. */
-  margin-left: 14px;
-  margin-right: 14px;
-}
-/* The config row's control. Nothing visual either — this is a marker like \`.lotsman-composer-entry\`,
+/* The config row's control. Nothing visual either — this is a marker,
    so the row's dropdowns can be found by class rather than by walking the tree. It exists because a
    probe (and a screenshot script) has to be able to name "the dropdowns of the config row" without
    knowing how the box below them was assembled. */
@@ -226,7 +177,7 @@ export const WIDGET_CSS = `
    scale instead of by kind.
 
    NO \`border-radius\`, deliberately. \`card\`'s own 12 px is right for a one-line row, and the 18 px of
-   \`.lotsman-bubble\` and \`.lotsman-composer-frame\` belongs to the two surfaces that are a whole message
+   \`.lotsman-bubble\` belongs to the two surfaces that are a whole message
    tall. Writing the theme's number out here would be a second opinion that drifts from it.
 
    The padding is one step under the bubble's 10/14, which puts this window's insets on one scale. */
@@ -284,9 +235,6 @@ export const CSS = {
   note: 'lotsman-note',
   disclosureBody: 'lotsman-disclosure-body',
   thought: 'lotsman-thought',
-  composerFrame: 'lotsman-composer-frame',
-  composerEntry: 'lotsman-composer-entry',
-  composerStatus: 'lotsman-composer-status',
   configControl: 'lotsman-config-control',
   pill: 'lotsman-pill',
   toolCard: 'lotsman-tool-card',
