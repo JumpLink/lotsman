@@ -108,6 +108,8 @@ the part that understands language. What it lacks is a way to *do* what Lotsman 
    `mcpServers` for sessions the app opens (`start`, `resume`, the widget, requests). Needs the
    MCP server SDK on GJS ([gjsify#2389](https://github.com/gjsify/gjsify/issues/2389), as in ADR
    0008) or a small hand-written JSON-RPC server. Read-only tools first.
+   *Done: hand-written (`packages/core/src/tool-server.ts`), tools `lotsman_status` and
+   `lotsman_tasks`; `/run` stays a command until step 3.*
 3. **Shared confirmation.** The pure rule in core, then each surface renders it. The first
    outward tool (run a task that sends) gates on it.
 4. **Action log and its query.** Extend `listen.log` to every surface with the fields in point 4;

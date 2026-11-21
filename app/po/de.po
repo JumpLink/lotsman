@@ -288,8 +288,8 @@ msgid "type the answer in a window"
 msgstr "die Antwort in einem Fenster eingeben"
 
 #: app/src/frontends/cli/answer.ts:80 app/src/frontends/cli/auth.ts:40
-#: app/src/frontends/cli/cancel.ts:30 app/src/frontends/cli/resume.ts:47
-#: app/src/frontends/cli/run.ts:27 app/src/frontends/cli/start.ts:56
+#: app/src/frontends/cli/cancel.ts:30 app/src/frontends/cli/resume.ts:48
+#: app/src/frontends/cli/run.ts:27 app/src/frontends/cli/start.ts:57
 msgid "do not echo the agent's log lines"
 msgstr "die Logzeilen des Agenten nicht ausgeben"
 
@@ -325,8 +325,8 @@ msgstr ""
 "versuche es erneut"
 
 #: app/src/frontends/cli/auth.ts:70 app/src/frontends/cli/cancel.ts:66
-#: app/src/frontends/cli/listen-deps.ts:147 app/src/frontends/cli/resume.ts:96
-#: app/src/frontends/cli/start.ts:90
+#: app/src/frontends/cli/listen-deps.ts:147 app/src/frontends/cli/resume.ts:97
+#: app/src/frontends/cli/start.ts:91
 msgid "  [agent] {line}"
 msgstr "  [agent] {line}"
 
@@ -413,19 +413,19 @@ msgstr ""
 "Chat-Anfragen neu geladen: {what} (eine laufende Anfrage endet, wie sie "
 "begonnen hat)"
 
-#: app/src/frontends/cli/choose.ts:28 app/src/frontends/cli/listen.ts:182
-#: app/src/frontends/cli/listen.ts:284 app/src/frontends/cli/listen.ts:291
-#: app/src/frontends/cli/listen.ts:303 app/src/frontends/cli/listen.ts:326
+#: app/src/frontends/cli/choose.ts:28 app/src/frontends/cli/listen.ts:175
+#: app/src/frontends/cli/listen.ts:277 app/src/frontends/cli/listen.ts:285
+#: app/src/frontends/cli/listen.ts:297 app/src/frontends/cli/listen.ts:316
 msgid "  {line}"
 msgstr "  {line}"
 
 #: app/src/frontends/cli/choose.ts:38 app/src/frontends/cli/listen-deps.ts:140
-#: app/src/frontends/cli/listen.ts:134 app/src/frontends/cli/questions.ts:33
+#: app/src/frontends/cli/listen.ts:127 app/src/frontends/cli/questions.ts:33
 msgid "  {problem}"
 msgstr "  {problem}"
 
-#: app/src/frontends/cli/choose.ts:43 app/src/frontends/cli/listen.ts:197
-#: app/src/frontends/cli/listen.ts:234 app/src/frontends/cli/provider.ts:205
+#: app/src/frontends/cli/choose.ts:43 app/src/frontends/cli/listen.ts:190
+#: app/src/frontends/cli/listen.ts:227 app/src/frontends/cli/provider.ts:205
 msgid "  {note}"
 msgstr "  {note}"
 
@@ -443,42 +443,42 @@ msgstr ""
 msgid "  {warning}"
 msgstr "  {warning}"
 
-#: app/src/frontends/cli/listen.ts:87
+#: app/src/frontends/cli/listen.ts:80
 msgid "  #{questionId}: {message}"
 msgstr "  #{questionId}: {message}"
 
-#: app/src/frontends/cli/listen.ts:117
+#: app/src/frontends/cli/listen.ts:110
 msgid "  #{questionId}: {reason}"
 msgstr "  #{questionId}: {reason}"
 
-#: app/src/frontends/cli/listen.ts:175
+#: app/src/frontends/cli/listen.ts:168
 msgid "  messenger channel not started: {problem}"
 msgstr "  Messenger-Kanal nicht gestartet: {problem}"
 
-#: app/src/frontends/cli/listen.ts:180
+#: app/src/frontends/cli/listen.ts:173
 msgid "  messenger: {line}"
 msgstr "  Messenger: {line}"
 
-#: app/src/frontends/cli/listen.ts:201
+#: app/src/frontends/cli/listen.ts:194
 msgid "  {name}: {message}"
 msgstr "  {name}: {message}"
 
-#: app/src/frontends/cli/listen.ts:225
+#: app/src/frontends/cli/listen.ts:218
 msgid "answer chat requests and ask the person when an agent has a question"
 msgstr ""
 "Chat-Anfragen beantworten und die Person fragen, wenn ein Agent eine Frage "
 "hat"
 
-#: app/src/frontends/cli/listen.ts:227
+#: app/src/frontends/cli/listen.ts:220
 msgid "do not echo the agents' log lines"
 msgstr "die Logzeilen der Agenten nicht ausgeben"
 
-#: app/src/frontends/cli/listen.ts:245
+#: app/src/frontends/cli/listen.ts:238
 msgid "  {dropped} permission question(s) from an earlier listen cancelled"
 msgstr ""
 "  {dropped} Berechtigungsfrage(n) aus einem früheren listen abgebrochen"
 
-#: app/src/frontends/cli/listen.ts:249
+#: app/src/frontends/cli/listen.ts:242
 msgid ""
 "lotsman listen — listening for chat requests and answers, questions via "
 "{channel}, state in {dir}"
@@ -486,11 +486,11 @@ msgstr ""
 "lotsman listen — hört auf Chat-Anfragen und Antworten, Fragen über "
 "{channel}, Zustand in {dir}"
 
-#: app/src/frontends/cli/listen.ts:264
+#: app/src/frontends/cli/listen.ts:257
 msgid "  stopping: {why}"
 msgstr "  wird beendet: {why}"
 
-#: app/src/frontends/cli/listen.ts:307
+#: app/src/frontends/cli/listen.ts:301
 msgid ""
 "  {left} chat request(s) from an earlier listen were not completed; the chat "
 "was told"
@@ -574,6 +574,10 @@ msgstr "beim Login ist die Zeit abgelaufen — starte ihn erneut."
 #: app/src/frontends/cli/login.ts:287
 msgid "cancelled."
 msgstr "abgebrochen."
+
+#: app/src/frontends/cli/mcp.ts:26
+msgid "serve Lotsman's read-only tools to an agent over MCP (stdio)"
+msgstr "Lotsmans schreibgeschützte Werkzeuge einem Agenten über MCP (stdio) anbieten"
 
 #: app/src/frontends/cli/messenger.ts:126
 msgid "show or set the requests `lotsman listen` takes from the chat"
@@ -770,38 +774,38 @@ msgstr "    {line}"
 msgid "    → {resolution}"
 msgstr "    → {resolution}"
 
-#: app/src/frontends/cli/resume.ts:33
+#: app/src/frontends/cli/resume.ts:34
 msgid "reattach a recorded session and optionally run one prompt turn"
 msgstr ""
 "eine aufgezeichnete Sitzung wieder anbinden und optional einen Prompt-Zug "
 "ausführen"
 
-#: app/src/frontends/cli/resume.ts:36
+#: app/src/frontends/cli/resume.ts:37
 msgid "the session id from `lotsman sessions`"
 msgstr "die Sitzungs-ID aus „lotsman sessions“"
 
-#: app/src/frontends/cli/resume.ts:40
+#: app/src/frontends/cli/resume.ts:41
 msgid "the prompt; omit it to reattach and stop"
 msgstr "der Prompt; ohne Angabe wird nur wieder angebunden"
 
-#: app/src/frontends/cli/resume.ts:44
+#: app/src/frontends/cli/resume.ts:45
 msgid ""
 "must match the session's agent; the session's own agent is used when omitted"
 msgstr ""
 "muss zum Agenten der Sitzung passen; ohne Angabe wird der Agent der Sitzung "
 "verwendet"
 
-#: app/src/frontends/cli/resume.ts:46
+#: app/src/frontends/cli/resume.ts:47
 msgid "refuse every tool call without asking"
 msgstr "jeden Werkzeugaufruf ohne Nachfrage ablehnen"
 
-#: app/src/frontends/cli/resume.ts:61
+#: app/src/frontends/cli/resume.ts:62
 msgid "no session with id {id} — `lotsman sessions` lists what lotsman has"
 msgstr ""
 "keine Sitzung mit der ID {id} — „lotsman sessions“ listet auf, was lotsman "
 "kennt"
 
-#: app/src/frontends/cli/resume.ts:139 app/src/frontends/cli/start.ts:145
+#: app/src/frontends/cli/resume.ts:143 app/src/frontends/cli/start.ts:146
 msgid "— {stopReason} —"
 msgstr "— {stopReason} —"
 
@@ -837,15 +841,15 @@ msgstr "das Protokoll zeigen, nicht eine Zeile pro Sitzung"
 msgid "whose sessions to list"
 msgstr "wessen Sitzungen aufgelistet werden"
 
-#: app/src/frontends/cli/start.ts:36
+#: app/src/frontends/cli/start.ts:37
 msgid "open a session with an agent and run one prompt turn"
 msgstr "eine Sitzung mit einem Agenten öffnen und einen Prompt-Zug ausführen"
 
-#: app/src/frontends/cli/start.ts:42
+#: app/src/frontends/cli/start.ts:43
 msgid "the prompt; omit it to open a session and stop"
 msgstr "der Prompt; ohne Angabe wird nur eine Sitzung geöffnet"
 
-#: app/src/frontends/cli/start.ts:46
+#: app/src/frontends/cli/start.ts:47
 msgid ""
 "which agent launcher to start (default: the bundled copy, else your own "
 "install)"
@@ -853,15 +857,15 @@ msgstr ""
 "welcher Agenten-Starter gestartet wird (Standard: die mitgelieferte Kopie, "
 "sonst deine eigene Installation)"
 
-#: app/src/frontends/cli/start.ts:50
+#: app/src/frontends/cli/start.ts:51
 msgid "the directory the session runs in (default: the current one)"
 msgstr "das Verzeichnis, in dem die Sitzung läuft (Standard: das aktuelle)"
 
-#: app/src/frontends/cli/start.ts:54
+#: app/src/frontends/cli/start.ts:55
 msgid "refuse every tool call without asking, even on a terminal"
 msgstr "jeden Werkzeugaufruf ohne Nachfrage ablehnen, auch im Terminal"
 
-#: app/src/frontends/cli/start.ts:105
+#: app/src/frontends/cli/start.ts:106
 msgid "{agentInfo} — session {sessionId} in {cwd}"
 msgstr "{agentInfo} — Sitzung {sessionId} in {cwd}"
 
@@ -937,11 +941,11 @@ msgstr "{task}: {outcome} um {time}"
 msgid "Open: {id} ({task}) until {time}"
 msgstr "Offen: {id} ({task}) bis {time}"
 
-#: app/src/frontends/cli/tasks.ts:16
+#: app/src/frontends/cli/tasks.ts:15
 msgid "list the tasks that can be run"
 msgstr "die ausführbaren Aufgaben auflisten"
 
-#: app/src/frontends/cli/tasks.ts:18
+#: app/src/frontends/cli/tasks.ts:17
 msgid "print the tasks as JSON"
 msgstr "die Aufgaben als JSON ausgeben"
 
@@ -1000,7 +1004,7 @@ msgstr "Es ließ sich kein Mikrofon öffnen."
 msgid "Dictation is switched off."
 msgstr "Diktat ist ausgeschaltet."
 
-#: app/src/frontends/gui/main.ts:202
+#: app/src/frontends/gui/main.ts:206
 msgid ""
 "An ACP client for GNOME: start a coding agent as a subprocess, watch it "
 "work, and answer the questions it asks. The agent brings its own model, its "
