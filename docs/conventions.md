@@ -3,7 +3,7 @@
 Toolchain and commit rules moved from `AGENTS.md`.
 
 - `gjsify install` — never `npm install`, it prunes gjsify deps.
-- All `@gjsify/*` packages are pinned to the **same exact version** (0.64.53 here). gjsify ships as
+- All `@gjsify/*` packages are pinned to the **same exact version** (0.64.54 here). gjsify ships as
   one release train; a CLI ↔ libs skew produces silently broken bundles. `@gjsify/napi` is absent on
   purpose: [toolchain-traps.md](toolchain-traps.md#why-gjsifynapi-is-not-pinned).
 - `gjsify foreach -A check` (the `-A` includes `private: true` workspaces), `gjsify workspace
