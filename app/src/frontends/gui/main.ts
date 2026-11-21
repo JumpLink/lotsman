@@ -179,8 +179,8 @@ const modelPolicy = modelPolicyFromHook(hooks.modelPolicy ?? []);
  */
 const speech = speechFromHook(hooks.speech ?? false);
 /**
- * Push to talk: the real engine (`dictation-engine.ts`: gjsify recognition plus microphone); where its
- * native parts are missing the button is offered disabled with the reason in its tooltip.
+ * Push to talk: the real engine (`dictation-engine.ts`: gjsify recognition plus microphone); where the
+ * sherpa backend or model is missing the button is offered disabled with the reason in its tooltip.
  * `LOTSMAN_APP_DICTATION` swaps in a silent fake (`0`/`false` leaves the real engine).
  */
 const dictation = hooks.dictation ? dictationFromHook(true) : await realDictation();

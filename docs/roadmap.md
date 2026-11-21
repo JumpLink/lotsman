@@ -12,7 +12,8 @@ the decision lives.
 - **Troedler integration**.
 - **Speech recognition in the app** — push to talk (hold **F9**) is built in core and widget, and the app
   wires it to `@gjsify/speech-recognition` (Parakeet, downloaded on the first press) and
-  `@gjsify/media-capture`; without the native backend the button is disabled with the reason. Hands-free and barge-in (stages 3–4): [ADR 0010](adr/0010-conversation-mode.md).
+  `@gjsify/media-capture`; without the sherpa backend or model the button is disabled with the reason.
+  GStreamer is a hard runtime dependency of the GUI, not an optional one. Hands-free and barge-in (stages 3–4): [ADR 0010](adr/0010-conversation-mode.md).
 - **A Claude Code adapter** — decided, not built; terms and billing: [claude-code.md](claude-code.md).
 
 See also the non-goals in [docs/vision.md](vision.md): no agent or model of Lotsman's own, no package

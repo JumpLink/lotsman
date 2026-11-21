@@ -5,8 +5,10 @@
  * **The gjsify packages sit behind two small interfaces** (`RecognitionApi`, `MicrophoneApi`), loaded
  * lazily by `loadGjsify`. The adapter's mapping (model states to `RecognitionAvailability`, PCM bytes to
  * `Float32Array`, the sample-rate check) is then testable on Node and GJS with fakes, with no model, no
- * microphone and no native typelib. A host without the native backend gets a clean "unavailable" carrying
- * the reason, never a crash at start-up.
+ * microphone and no native typelib. A host without the sherpa backend or model gets a clean
+ * "unavailable" carrying the reason. GStreamer is NOT covered by that: the bundler hoists the
+ * `@gjsify/media-capture` import to the top of the bundle, so the GUI needs the `Gst` and `GstApp`
+ * typelibs to start at all (a hard runtime dependency, declared in `gjsify.ship` and CI).
  */
 
 import type { PcmAudio, Recorder, RecognitionAvailability, Transcriber } from '@lotsman/core';

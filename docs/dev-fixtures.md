@@ -281,8 +281,8 @@ and the store files have to be pinned: `LOTSMAN_APP_THINKING` sends into the **p
 ## `LOTSMAN_APP_DICTATION` — push to talk, with a fake microphone
 
 The window passes the widget a recogniser and a microphone (`LotsmanChatOptions.dictation`, ADR 0010
-stage 2). By default they are the real engine (`frontends/gui/dictation-engine.ts`): where the native backend
-is missing the microphone button is insensitive and its tooltip gives the reason. `LOTSMAN_APP_DICTATION=1` (a flag; `0`/`false`
+stage 2). By default they are the real engine (`frontends/gui/dictation-engine.ts`): where the sherpa backend
+is missing (GStreamer itself is a hard dependency of the GUI) the microphone button is insensitive and its tooltip gives the reason. `LOTSMAN_APP_DICTATION=1` (a flag; `0`/`false`
 is off) swaps in a fake that "records" a quarter second of synthetic silence and answers with a fixed
 line, so hold **F9** (or press and hold the button), release, and the text lands in the entry — not
 sent — without a microphone or a sound. It is the only engine a test or screenshot run may use
