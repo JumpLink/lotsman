@@ -82,6 +82,22 @@
       "homepageUrl": "https://github.com/JumpLink/lotsman",
       "bugtrackerUrl": "https://github.com/JumpLink/lotsman/issues",
       "vcsBrowserUrl": "https://github.com/JumpLink/lotsman",
+      "typelibPackages": {
+        "GstApp-1.0": {
+          "deb": "gir1.2-gst-plugins-base-1.0",
+          "rpm": "gstreamer1-plugins-base"
+        }
+      },
+      "depends": {
+        "deb": [
+          "gstreamer1.0-plugins-base",
+          "gstreamer1.0-pipewire"
+        ],
+        "rpm": [
+          "gstreamer1-plugins-base",
+          "pipewire-gstreamer"
+        ]
+      },
       "flatpak": {
         "finishArgs": [
           "--device=dri",
