@@ -96,6 +96,8 @@
     }
   },
   "dependencies": {
+    "@gjsify/media-capture": "0.64.53",
+    "@gjsify/speech-recognition": "0.64.53",
     "@lotsman/acp": "^0.6.0",
     "@lotsman/core": "^0.6.0",
     "@lotsman/session": "^0.6.0",
@@ -103,17 +105,17 @@
     "yargs": "^18.1.0"
   },
   "devDependencies": {
-    "@gjsify/cli": "0.64.32",
-    "@gjsify/node-globals": "0.64.32",
-    "@gjsify/rolldown-native": "0.64.32",
-    "@gjsify/runtime": "0.64.32",
-    "@gjsify/unit": "0.64.32",
-    "@gjsify/ws": "0.64.32",
+    "@gjsify/cli": "0.64.53",
+    "@gjsify/node-globals": "0.64.53",
+    "@gjsify/rolldown-native": "0.64.53",
+    "@gjsify/runtime": "0.64.53",
+    "@gjsify/unit": "0.64.53",
+    "@gjsify/ws": "0.64.53",
     "@types/node": "^26.6.5",
     "@types/yargs": "^17.0.35",
     "oxfmt": "^0.74.0",
     "oxlint": "^1.89.0",
     "typescript": "^6.0.3",
-    "@gjsify/adwaita-app": "0.64.32"
+    "@gjsify/adwaita-app": "0.64.53"
   }
 }
