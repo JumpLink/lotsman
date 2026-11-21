@@ -37,6 +37,18 @@
     <content_attribute id="language-humor">none</content_attribute>
   </content_rating>
   <releases>
+    <release version="0.7.0" date="2026-11-21">
+      <description>
+        <!-- TRANSLATORS: Release notes for version 0.7.0 - opening line: push-to-talk dictation -->
+        <p>You can dictate your prompt: hold a key, speak, and the text appears in the composer.</p>
+        <ul>
+          <!-- TRANSLATORS: Release notes for version 0.7.0 - push-to-talk dictation. Keep F9 and Esc as they are. -->
+          <li>Hold F9 or the microphone button to dictate; Esc cancels. The text goes into the composer and is never sent for you.</li>
+          <!-- TRANSLATORS: Release notes for version 0.7.0 - local speech recognition, GStreamer is a new requirement. Keep GStreamer as it is. -->
+          <li>Speech is recognised on your computer. GStreamer is now required to run the app.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.6.0" date="2026-11-12">
       <description>
         <!-- TRANSLATORS: Release notes for version 0.6.0 - opening line: answers read aloud, tasks on demand -->

@@ -127,6 +127,28 @@
       },
       "releases": [
         {
+          "version": "0.7.0",
+          "date": "2026-11-21",
+          "description": [
+            {
+              "p": "You can dictate your prompt: hold a key, speak, and the text appears in the composer.",
+              "translatorHint": "Release notes for version 0.7.0 - opening line: push-to-talk dictation"
+            },
+            {
+              "ul": [
+                {
+                  "item": "Hold F9 or the microphone button to dictate; Esc cancels. The text goes into the composer and is never sent for you.",
+                  "translatorHint": "Release notes for version 0.7.0 - push-to-talk dictation. Keep F9 and Esc as they are."
+                },
+                {
+                  "item": "Speech is recognised on your computer. GStreamer is now required to run the app.",
+                  "translatorHint": "Release notes for version 0.7.0 - local speech recognition, GStreamer is a new requirement. Keep GStreamer as it is."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "version": "0.6.0",
           "date": "2026-11-12",
           "description": [
@@ -399,7 +421,7 @@
             {
               "type": "git",
               "url": "https://github.com/JumpLink/lotsman.git",
-              "tag": "v0.6.0",
+              "tag": "v0.7.0",
               "x-checker-data": {
                 "type": "git",
                 "tag-pattern": "^v(\\d+\\.\\d+\\.\\d+)$",

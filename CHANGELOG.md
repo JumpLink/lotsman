@@ -4,6 +4,21 @@ Notable changes to lotsman. The per-release notes that ship in the AppStream met
 from the `gjsify.flatpak.releases` block in `package.json`; this file is the developer-facing view
 and also records changes that are not a release of their own.
 
+## 0.7.0 — 2026-11-21
+
+### Added
+
+- **Push-to-talk dictation in the composer** ([ADR 0010](docs/adr/0010-conversation-mode.md)): hold <kbd>F9</kbd> or the
+  microphone button to dictate, <kbd>Esc</kbd> cancels. The text lands in the composer and is never sent
+  automatically. The app recognises speech locally with parakeet through `transcribe()` from gjsify 0.64.53.
+- The Flatpak and the deb and rpm packages get the PulseAudio socket for microphone capture.
+
+### Changed
+
+- **GStreamer is now a hard dependency of the GUI.** CI installs it for tests, release, deb and rpm
+  ([packaging](docs/packaging.md)).
+- Bumped gjsify to 0.64.53.
+
 ## 0.6.0 — 2026-11-12
 
 ### Added
