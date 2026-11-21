@@ -45,7 +45,6 @@ import {
 
 import { currentDialogCommand, openAnswerDialog } from '../../core/answer-dialog.ts';
 import type { ListenPaths } from '../../core/paths.ts';
-import { listTasks } from '../../core/skills.ts';
 import {
   fileCursorStore,
   fileRefStore,
@@ -59,14 +58,8 @@ import { stderrChannel } from '../../core/stderr-channel.ts';
 import { err, pickArgv } from './output.ts';
 import { createRequestsHolder } from './chat-requests.ts';
 import { readConfig, runDeps, trackedAgents } from './listen-deps.ts';
-import {
-  knownTasks,
-  reportText,
-  runReportFromText,
-  statusReport,
-  statusText,
-  tasksText,
-} from './task-commands.ts';
+import { mcpServersFor } from '../../core/own-mcp.ts';
+import { chatCommands } from './tools.ts';
 
 const FAILED = new Set(['unknown', 'dropped', 'expired', 'busy', 'invalid']);
 
@@ -282,6 +275,7 @@ const command = (paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
               pending,
               send: (text) => sendToPeer(messenger.link, messenger.settings, text),
               log: (line) => err(fmt(_('  {line}'), { line })),
+              extraMcpServers: mcpServersFor(paths.settingsFile),
             }),
         })
       : null;
@@ -318,11 +312,7 @@ const command = (paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
         cursor: fileCursorStore(messengerCursorFile(listen.stateDir)),
         refs: fileRefStore(messengerRefsFile(listen.stateDir)),
         requests: () => holder?.current(),
-        commands: {
-          run: async (args) => reportText(await runReportFromText(args, live)),
-          tasks: () => tasksText(listTasks(listen.tasksDir)),
-          status: () => statusText(statusReport(listen), { known: knownTasks(listen.tasksDir) }),
-        },
+        commands: chatCommands(listen, live),
         log: (line) => err(fmt(_('  {line}'), { line })),
         signal,
       }).catch((error: unknown) =>

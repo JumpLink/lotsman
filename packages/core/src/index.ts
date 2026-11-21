@@ -738,3 +738,12 @@ export {
   type SkillTask,
   type TaskParam,
 } from './task/skill.ts';
+export {
+  MCP_PROTOCOL_VERSIONS,
+  RPC,
+  createToolServer,
+  type ToolDefinition,
+  type ToolResult,
+  type ToolServer,
+  type ToolServerOptions,
+} from './tool-server.ts';

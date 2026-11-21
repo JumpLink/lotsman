@@ -7,7 +7,7 @@ import type { LotsmanPaths } from '@lotsman/core';
 
 import type { ListenPaths } from '../../core/paths.ts';
 import { out, pickArgv } from './output.ts';
-import { knownTasks, statusReport, statusText } from './task-commands.ts';
+import { statusView } from './task-commands.ts';
 
 const command = (_paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
   command: 'status',
@@ -15,10 +15,10 @@ const command = (_paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
   builder: (yargs) =>
     yargs.option('json', { type: 'boolean', describe: _('print the status as JSON') }).strict(),
   handler: (argv) => {
-    const report = statusReport(listen);
+    const { report, text } = statusView(listen);
     if (pickArgv<boolean>(argv as Record<string, unknown>, 'json') === true)
       out(JSON.stringify(report, null, 2));
-    else out(statusText(report, { known: knownTasks(listen.tasksDir) }));
+    else out(text);
   },
 });
 

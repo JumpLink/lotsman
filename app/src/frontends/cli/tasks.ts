@@ -7,9 +7,8 @@ import type { LotsmanPaths } from '@lotsman/core';
 
 import type { ListenPaths } from '../../core/paths.ts';
 import { out, pickArgv } from './output.ts';
-import { listTasks } from '../../core/skills.ts';
 import { migrateConfig } from './listen-deps.ts';
-import { tasksText } from './task-commands.ts';
+import { tasksView } from './task-commands.ts';
 
 const command = (_paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
   command: 'tasks',
@@ -18,10 +17,10 @@ const command = (_paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
     yargs.option('json', { type: 'boolean', describe: _('print the tasks as JSON') }).strict(),
   handler: (argv) => {
     migrateConfig(listen);
-    const entries = listTasks(listen.tasksDir);
+    const { entries, text } = tasksView(listen);
     if (pickArgv<boolean>(argv as Record<string, unknown>, 'json') === true)
       out(JSON.stringify(entries, null, 2));
-    else out(tasksText(entries));
+    else out(text);
   },
 });
 

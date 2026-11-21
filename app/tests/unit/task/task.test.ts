@@ -27,15 +27,8 @@ import {
 } from '@lotsman/core';
 
 import { listTasks } from '../../../src/core/skills.ts';
-import {
-  EXIT,
-  reportText,
-  runReport,
-  runReportFromText,
-  statusReport,
-  statusText,
-  tasksText,
-} from '../../../src/frontends/cli/task-commands.ts';
+import { chatCommands } from '../../../src/frontends/cli/tools.ts';
+import { EXIT, reportText, runReport, tasksText } from '../../../src/frontends/cli/task-commands.ts';
 import { fixture, type Fixture } from '../../support/config.ts';
 import { FixtureAgent, type FixtureAgentOptions } from '../../support/fixture-agent.ts';
 import { withFakeMcp } from '../../support/fake-mcp.ts';
@@ -277,11 +270,7 @@ export default async () => {
           minCycleMs: 0,
           backoff: { initialMs: 10, maxMs: 40 },
           sleep: (_ms, signal) => abortableSleep(10, signal),
-          commands: {
-            run: async (args) => reportText(await runReportFromText(args, d)),
-            tasks: () => tasksText(listTasks(tasksDir)),
-            status: () => statusText(statusReport(paths)),
-          },
+          commands: chatCommands(paths, d),
         });
         try {
           fake.deliver('2026-10-10T11:30:00.000Z', '/tasks');

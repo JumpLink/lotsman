@@ -23,6 +23,7 @@ import {
 import { createSessionStore } from '@lotsman/session';
 import type { TranscriptEntry } from '@lotsman/session';
 
+import { mcpServersFor } from '../../core/own-mcp.ts';
 import { agentForRecorded } from './choose.ts';
 import { commandGate } from './gate.ts';
 import { err, out, pickArgv, showUpdate } from './output.ts';
@@ -106,7 +107,10 @@ const command = (paths: LotsmanPaths): CommandModule => ({
       // The cwd comes from the record, not from the shell: a session's scope is part of what it
       // is, and resuming it from somewhere else would change what it can reach.
       await withAuthHint(`reattach ${id}`, () =>
-        agent.client.reattach(id, { cwd: record.cwd, mcpServers: [] }),
+        agent.client.reattach(id, {
+          cwd: record.cwd,
+          mcpServers: mcpServersFor(paths.settingsFile),
+        }),
       );
       const how: 'load' | 'resume' = agent.client.supportsLoadSession ? 'load' : 'resume';
       if (record.reattach && record.reattach !== how) {
