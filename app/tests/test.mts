@@ -46,6 +46,7 @@ import sessionGroups from './unit/core/session-groups.test.ts';
 import transcriptItems from './unit/core/transcript-items.test.ts';
 import turn from './unit/core/turn.test.ts';
 import permission from './unit/core/permission.test.ts';
+import confirmation from './unit/core/confirmation.test.ts';
 import hostTools from './unit/core/host-tools.test.ts';
 import agentSession from './unit/core/agent-session.test.ts';
 import cwd from './unit/core/cwd.test.ts';
@@ -134,6 +135,7 @@ run({
   transcriptItems,
   turn,
   permission,
+  confirmation,
   hostTools,
   agentSession,
   mcpToggles,

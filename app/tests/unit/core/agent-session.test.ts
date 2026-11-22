@@ -1970,4 +1970,51 @@ export default async () => {
       expect(h.persisted).toStrictEqual([]);
     });
   });
+
+  await describe('agent-session — confirming an outward action (ADR 0011)', async () => {
+    const ACTION = {
+      kind: 'run-command',
+      summary: 'Run a command',
+      details: [{ label: 'Command', value: 'echo hi' }],
+    };
+
+    await it('records a card line and runs the action only after a yes', async () => {
+      const h = harness();
+      let ran = 0;
+      const done = h.session.confirm(ACTION, () => ++ran);
+      const pending = h.session.confirmations.pendingIn('window');
+      expect(pending === null).toBe(false);
+      expect(h.entries[0]!.host?.type).toBe('confirmation');
+      expect(ran).toBe(0);
+      h.session.confirmations.answer(pending!.id, true);
+      expect((await done).type).toBe('ran');
+      expect(ran).toBe(1);
+    });
+
+    await it('never runs an unapproved action: a no, a new message, Stop or a closed window', async () => {
+      const closers: Array<(h: Harness, id: string) => void> = [
+        (h, id) => void h.session.confirmations.answer(id, false),
+        (h) => void h.session.prompt('something else'),
+        (h) => h.session.stop(),
+        (h) => void h.session.shutdown(0),
+      ];
+      for (const close of closers) {
+        const h = harness();
+        let ran = 0;
+        const done = h.session.confirm(ACTION, () => ++ran);
+        close(h, h.session.confirmations.pendingIn('window')!.id);
+        const result = await done;
+        expect(result.type).toBe('not-run');
+        expect(ran).toBe(0);
+      }
+    });
+
+    await it('fails closed with no session to show the card in', async () => {
+      const h = harness({ bind: false });
+      let ran = 0;
+      const result = await h.session.confirm(ACTION, () => ++ran);
+      expect(result.type).toBe('not-run');
+      expect(ran).toBe(0);
+    });
+  });
 };

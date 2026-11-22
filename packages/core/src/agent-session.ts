@@ -91,6 +91,14 @@ import {
   type PermissionQuestion,
   type PermissionView,
 } from './permission.ts';
+import {
+  ConfirmationBook,
+  confirmThen,
+  CONFIRMATION_HOST_TYPE,
+  WINDOW_SCOPE,
+  type ConfirmationAction,
+  type ConfirmedRun,
+} from './confirmation.ts';
 import { openAgent, runTurn, withAuthHint, type AgentHandle, type OpenAgentOptions } from './run.ts';
 import { fitsInputCap, isJsonValue, toTranscript } from './transcript.ts';
 import {
@@ -353,6 +361,11 @@ export class AgentSession {
    * `core/permission.ts`.
    */
   readonly #desk = new PermissionDesk();
+  /**
+   * Confirmations of actions Lotsman itself is about to take (ADR 0011, point 3). Separate from the
+   * desk on purpose — see `confirmation.ts`'s header — and in memory only, so a restart resumes none.
+   */
+  readonly confirmations = new ConfirmationBook();
   /** How many asks are in flight, so the state move brackets the wait and not each question. */
   #askDepth = 0;
   /** Whether the gate has been asked anything at all. See `permissionAsked`. */
@@ -566,6 +579,7 @@ export class AgentSession {
   bind(session: BoundSession | null): void {
     // Before the window points anywhere else: the turn that is running belongs to the chat being left.
     this.#leaveTurn(session?.id ?? null);
+    this.confirmations.expireAll('session-ended');
     this.#session = session;
     this.#pending = null;
     // **The row follows the agent, and the cache makes coming back possible.** The options on screen
@@ -599,6 +613,7 @@ export class AgentSession {
   startConversation(cwd: string): void {
     // A running turn is stopped the way the Stop button stops it, before the pane is emptied.
     this.#leaveTurn(null);
+    this.confirmations.expireAll('session-ended');
     this.#session = null;
     this.#pending = { pending: true, cwd };
     this.#clearConfigRow();
@@ -731,6 +746,24 @@ export class AgentSession {
   }
 
   /**
+   * Put an outward action to the person in the window, and run `run` only on an explicit yes.
+   *
+   * The card is a host line in the transcript (`type: 'confirmation'`), so it is stored with the
+   * session and drawn in order; the widget keeps it live while it is pending. Fails closed: with no
+   * session to record the line in, the question could not be seen, so nothing runs.
+   */
+  confirm<T>(action: ConfirmationAction, run: () => T | Promise<T>): Promise<ConfirmedRun<T>> {
+    return confirmThen(this.confirmations, WINDOW_SCOPE, action, run, (confirmation) => {
+      this.appendHostEntry({
+        type: CONFIRMATION_HOST_TYPE,
+        text: action.summary,
+        data: { id: confirmation.id, action: { ...action, details: [...action.details] } },
+        icon: 'dialog-question-symbolic',
+      });
+    });
+  }
+
+  /**
    * Send a prompt and run one turn.
    *
    * **The person's own words are recorded before anything is sent.** The prompt is appended to the
@@ -742,6 +775,8 @@ export class AgentSession {
    * `stop()` and `shutdown()` are what wait on it.
    */
   async prompt(text: string): Promise<void> {
+    // Whatever was waiting for a yes was asked about a situation the person has just left.
+    this.confirmations.expireScope(WINDOW_SCOPE, 'new-message');
     // Exclusive by construction (`bind` clears the one, `startConversation` the other).
     const target = this.#session ?? this.#pending;
     const body = text.trim();
@@ -792,6 +827,7 @@ export class AgentSession {
    * **no** `stopReason`, and it is reported as a stop because that is what the person asked for.
    */
   stop(): void {
+    this.confirmations.expireScope(WINDOW_SCOPE, 'turn-cancelled');
     if (!this.#turn) return;
     this.#cancelRequested = true;
     // **Stop with a dialog open closes the dialog, and the answer is `cancelled`.** The person pressed
@@ -826,6 +862,7 @@ export class AgentSession {
    * running agent behind it, which is the orphan `onSpawn` exists to prevent.
    */
   async shutdown(graceMs = this.#closeGraceMs): Promise<void> {
+    this.confirmations.expireAll('session-ended');
     // A close with a dialog up: same rule as Stop, and it comes first so the dialog is gone before the
     // window's `close-request` handler returns. `window-closed` rather than `turn-cancelled` because
     // the turn is still running when the person closes the window — it is the window that ended, not

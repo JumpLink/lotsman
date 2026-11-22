@@ -187,6 +187,18 @@ export const WIDGET_CSS = `
   background-color: alpha(@window_fg_color, 0.05);
 }
 
+/* A confirmation card (ADR 0011): the tool card's frame, tinted so a question that waits for a yes is
+   not mistaken for a finished tool call. Once decided it drops back to the tool card's own quiet. */
+.lotsman-confirm-card {
+  background-color: alpha(@accent_bg_color, 0.12);
+}
+.lotsman-confirm-card.lotsman-confirm-closed {
+  background-color: alpha(@window_fg_color, 0.05);
+}
+.lotsman-confirm-detail {
+  font-size: 0.9em;
+}
+
 /* An empty-state page's icon, smaller than Adw.StatusPage's 128 px (96 px under \`compact\`): these pages
    say "nothing yet", and a hero-sized glyph says more than that. 64 px is the size the theme itself
    uses for its in-app empty lists.
@@ -240,6 +252,9 @@ export const CSS = {
   toolCard: 'lotsman-tool-card',
   toolTitle: 'lotsman-tool-title',
   toolStatus: 'lotsman-tool-status',
+  confirmCard: 'lotsman-confirm-card',
+  confirmClosed: 'lotsman-confirm-closed',
+  confirmDetail: 'lotsman-confirm-detail',
   calm: 'lotsman-calm',
   thoughtCard: 'lotsman-thought-card',
   dim: DIM,

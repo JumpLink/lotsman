@@ -13,6 +13,10 @@ export function msg(msgid: string, values: Readonly<Record<string, string>> = {}
 }
 
 export const STRINGS = {
+  confirmHint: N_('Reply "yes" to do this or "no" to cancel. Any other message cancels it.'),
+  confirmedYes: N_('Done: approved.'),
+  confirmedNo: N_('Cancelled.'),
+  confirmLate: N_('That was already decided or has expired; nothing was done.'),
   noQuestionOpen: N_('No question is waiting for an answer.'),
   severalOpen: N_(
     'Several questions are open: {ids}. Start your reply with the id, for example "{example}".',
