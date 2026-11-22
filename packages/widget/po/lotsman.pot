@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-11-21 23:24+0100\n"
+"POT-Creation-Date: 2026-11-22 12:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,6 +50,68 @@ msgstr ""
 
 #: packages/core/src/config-row.ts:241
 msgid "Choose…"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:268
+msgid "just now"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:269
+msgid "{count} minute ago"
+msgid_plural "{count} minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/core/src/confirmation.ts:271
+msgid "{count} hour ago"
+msgid_plural "{count} hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/core/src/confirmation.ts:273
+msgid "{count} day ago"
+msgid_plural "{count} days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/core/src/confirmation.ts:280
+msgid "Waiting for your answer"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:282
+msgid "Approved"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:284
+msgid "Declined"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:286
+msgid "Expired: {reason}"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:294
+msgid "you wrote something else"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:296
+msgid "the turn was cancelled"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:298
+msgid "the session ended"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:300
+msgid "Lotsman restarted"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:302
+msgid "a different action was proposed"
+msgstr ""
+
+#: packages/core/src/confirmation.ts:304
+msgid "the situation changed"
 msgstr ""
 
 #: packages/core/src/dictation-view.ts:25
@@ -497,11 +559,12 @@ msgstr ""
 msgid "Dismiss warning"
 msgstr ""
 
-#: packages/widget/src/chat.ts:657
+#: packages/widget/src/chat.ts:658
 msgid "Working in {path}"
 msgstr ""
 
-#: packages/widget/src/chat.ts:999 packages/widget/src/provider-settings.ts:200
+#: packages/widget/src/chat.ts:1000
+#: packages/widget/src/provider-settings.ts:200
 #: packages/widget/src/provider-settings.ts:203
 msgid "Providers"
 msgstr ""
@@ -528,6 +591,14 @@ msgstr ""
 
 #: packages/widget/src/composer.ts:51
 msgid "Ask the agent…"
+msgstr ""
+
+#: packages/widget/src/confirmation-card.ts:62
+msgid "No"
+msgstr ""
+
+#: packages/widget/src/confirmation-card.ts:63
+msgid "Yes"
 msgstr ""
 
 #: packages/widget/src/failure-dialog.ts:19
@@ -842,6 +913,6 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
-#: packages/widget/src/transcript-view.ts:712
+#: packages/widget/src/transcript-view.ts:760
 msgid "Tool call"
 msgstr ""

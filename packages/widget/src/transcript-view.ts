@@ -51,6 +51,10 @@ import Pango from '@girs/pango-1.0';
 import type { TranscriptEntry } from '@lotsman/session';
 
 import {
+  CONFIRMATION_HOST_TYPE,
+  confirmationForCard,
+  type Confirmation,
+  type ConfirmationBook,
   _,
   followLanded,
   followTarget,
@@ -63,6 +67,7 @@ import {
   type TranscriptItem,
 } from '@lotsman/core';
 import { CONTENT_MAX_WIDTH_PX } from './constants.ts';
+import { buildConfirmationCard } from './confirmation-card.ts';
 import { CSS } from './css.ts';
 import { toolRow, TOOL_FALLBACK_ICON, type ToolLine, type ToolPresenter, type ToolRow } from './tool-line.ts';
 
@@ -195,6 +200,10 @@ export class TranscriptView {
   #lastValue = 0;
   /** The host's hook for its own tool calls (`LotsmanChatOptions.toolPresenter`), or none. */
   readonly #toolPresenter: ToolPresenter | undefined;
+  #book: ConfirmationBook | null = null;
+  #unsubscribe: (() => void) | null = null;
+  /** The source that refreshes pending cards' age, or 0. */
+  #ageTick = 0;
 
   constructor(options: { readonly toolPresenter?: ToolPresenter } = {}) {
     this.#toolPresenter = options.toolPresenter;
@@ -309,6 +318,32 @@ export class TranscriptView {
   }
 
   /** The name above each agent bubble. Takes effect for rows built after it, so set it before `setEntries`. */
+  /**
+   * Where confirmation cards read their state and send their answers (`AgentSession.confirmations`).
+   * The view keeps a card live: every change to the book rebuilds the row it belongs to in place, and
+   * while one is pending the age under it is refreshed once a minute.
+   */
+  setConfirmations(book: ConfirmationBook): void {
+    this.#unsubscribe?.();
+    this.#book = book;
+    this.#unsubscribe = book.subscribe((confirmation) => this.#refreshCard(confirmation));
+  }
+
+  #refreshCard(confirmation: Confirmation): void {
+    this.#items.forEach((item, index) => {
+      if (item.kind === 'host' && cardId(item.data, item.type) === confirmation.id) this.#replaceRow(index);
+    });
+    if (this.#book?.pending().length && this.#ageTick === 0) {
+      this.#ageTick = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 60, () => {
+        const waiting = this.#book?.pending() ?? [];
+        for (const pending of waiting) this.#refreshCard(pending);
+        if (waiting.length > 0) return GLib.SOURCE_CONTINUE;
+        this.#ageTick = 0;
+        return GLib.SOURCE_REMOVE;
+      });
+    }
+  }
+
   setAgentName(name: string): void {
     this.#agentName = name;
   }
@@ -383,7 +418,7 @@ export class TranscriptView {
 
   /** Add one item as a new row at the end of the column. */
   #appendRow(item: TranscriptItem): void {
-    const row = buildItem(item, this.#agentName, this.#toolPresenter);
+    const row = buildItem(item, this.#agentName, this.#toolPresenter, this.#book);
     this.#rows.push(row);
     this.#column.append(row);
   }
@@ -401,11 +436,14 @@ export class TranscriptView {
    * point is the whole mechanism.
    */
   #replaceLastRow(): void {
-    const index = this.#rows.length - 1;
+    this.#replaceRow(this.#rows.length - 1);
+  }
+
+  #replaceRow(index: number): void {
     const previous = this.#rows[index];
     const item = this.#items[index];
     if (!previous || !item) return;
-    const row = buildItem(item, this.#agentName, this.#toolPresenter);
+    const row = buildItem(item, this.#agentName, this.#toolPresenter, this.#book);
     const sibling = this.#rows[index - 1] ?? null;
     this.#column.insert_child_after(row, sibling);
     this.#column.remove(previous);
@@ -549,6 +587,7 @@ function buildItem(
   item: TranscriptItem,
   agentName: string,
   presenter: ToolPresenter | undefined,
+  book: ConfirmationBook | null,
 ): Gtk.Widget {
   switch (item.kind) {
     case 'user':
@@ -574,8 +613,17 @@ function buildItem(
     }
     case 'system':
       return buildNote(item.text);
-    case 'host':
+    case 'host': {
+      if (item.type === CONFIRMATION_HOST_TYPE) {
+        const confirmation = confirmationForCard(item.data, item.at, book);
+        if (confirmation !== null) {
+          return buildConfirmationCard(confirmation, new Date(), (id, approve) => {
+            book?.answer(id, approve);
+          });
+        }
+      }
       return buildHostRow(item.text, item.icon);
+    }
     // Unreachable for what `toTranscriptItems` returns; a note rather than `undefined` if an item
     // from a newer core ever gets here, so `append` never gets a missing widget.
     default:
@@ -822,4 +870,11 @@ function buildLabel(spec: LabelSpec): Gtk.Label {
     halign: spec.align ?? Gtk.Align.FILL,
     cssClasses: [...spec.cssClasses],
   });
+}
+
+/** The confirmation id a host line carries, or `null` when it is some other host's line. */
+function cardId(data: unknown, type: string): string | null {
+  if (type !== CONFIRMATION_HOST_TYPE || typeof data !== 'object' || data === null) return null;
+  const { id } = data as { id?: unknown };
+  return typeof id === 'string' ? id : null;
 }

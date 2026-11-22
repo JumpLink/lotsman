@@ -360,6 +360,7 @@ export {
   WINDOW_SCOPE,
   confirmThen,
   confirmationAge,
+  confirmationForCard,
   confirmationStatusText,
   expiryText,
   readConfirmReply,

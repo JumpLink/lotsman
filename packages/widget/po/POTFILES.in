@@ -17,6 +17,7 @@ packages/core/src/auth.ts
 packages/core/src/composer-state.ts
 packages/core/src/config-row.ts
 packages/core/src/config.ts
+packages/core/src/confirmation.ts
 packages/core/src/conversation.ts
 packages/core/src/custom/api.ts
 packages/core/src/custom/endpoint.ts
@@ -99,6 +100,7 @@ packages/widget/src/chat.blp
 packages/widget/src/chat.ts
 packages/widget/src/composer.ts
 packages/widget/src/config-row.ts
+packages/widget/src/confirmation-card.ts
 packages/widget/src/constants.ts
 packages/widget/src/css.ts
 packages/widget/src/failure-dialog.ts

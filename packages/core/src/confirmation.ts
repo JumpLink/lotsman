@@ -304,3 +304,39 @@ export function expiryText(reason: ExpiryReason | undefined): string {
       return _('the situation changed');
   }
 }
+
+/**
+ * The confirmation behind a stored card line, for drawing it.
+ *
+ * The line carries `{ id, action }` (`AgentSession.confirm`). While the book still knows the id the
+ * live record wins; a line from an earlier run — the book is memory only — is a card that can no
+ * longer be answered, so it comes back `expired` with reason `restart`. `null` when the stored data
+ * is not a card at all.
+ */
+export function confirmationForCard(
+  data: unknown,
+  at: string,
+  book: ConfirmationBook | null,
+): Confirmation | null {
+  if (typeof data !== 'object' || data === null) return null;
+  const { id, action } = data as { id?: unknown; action?: unknown };
+  if (typeof id !== 'string' || typeof action !== 'object' || action === null) return null;
+  const live = book?.get(id) ?? null;
+  if (live !== null) return live;
+  const { kind, summary, details } = action as Partial<ConfirmationAction>;
+  if (typeof kind !== 'string' || typeof summary !== 'string' || !Array.isArray(details)) return null;
+  return {
+    id,
+    scope: WINDOW_SCOPE,
+    action: { kind, summary, details: details.filter(isDetail) },
+    createdAt: at,
+    status: 'expired',
+    decidedAt: at,
+    reason: 'restart',
+  };
+}
+
+function isDetail(value: unknown): value is ConfirmationDetail {
+  const detail = value as Partial<ConfirmationDetail> | null;
+  return typeof detail?.label === 'string' && typeof detail.value === 'string';
+}

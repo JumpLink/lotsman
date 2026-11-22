@@ -500,6 +500,7 @@ export class LotsmanChat extends Adw.Bin {
         },
       },
     });
+    this.#transcript.setConfirmations(this.#agent.confirmations);
     // **Before the composer, because the composer's toggle exists only if this does.** The gate is
     // core's one function: an engine from the host, and a `voice` policy that does not say `off`.
     this.#readAloud = readAloudOffered(options.speech, options.profile?.voice ?? null)
