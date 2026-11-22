@@ -353,6 +353,25 @@ export {
   type FailureNotice,
 } from './failure.ts';
 
+// ── Confirming an action Lotsman itself takes (ADR 0011, point 3) ───────────────────────────────
+export {
+  ConfirmationBook,
+  confirmThen,
+  confirmationAge,
+  confirmationStatusText,
+  expiryText,
+  readConfirmReply,
+  type ConfirmAnswerResult,
+  type Confirmation,
+  type ConfirmationAction,
+  type ConfirmationBookOptions,
+  type ConfirmationDetail,
+  type ConfirmationOutcome,
+  type ConfirmationStatus,
+  type ConfirmedRun,
+  type ExpiryReason,
+} from './confirmation.ts';
+
 // ── Answering the agent's permission request ─────────────────────────────────────────────────────
 export {
   agentNames,
