@@ -112,6 +112,8 @@ the part that understands language. What it lacks is a way to *do* what Lotsman 
    `lotsman_tasks`; `/run` stays a command until step 3.*
 3. **Shared confirmation.** The pure rule in core, then each surface renders it. The first
    outward tool (run a task that sends) gates on it.
+   *Done: the rule and its three surfaces (see "Amendment: shared confirmation" below); `/run` as
+   an agent tool is the next change.*
 4. **Action log and its query.** Extend `listen.log` to every surface with the fields in point 4;
    add the `/log` command and the tool.
 5. **Quiet mode and the untrusted-content boundary** in the tool server, with tests for a call
@@ -119,3 +121,32 @@ the part that understands language. What it lacks is a way to *do* what Lotsman 
 6. **Spoken output.** Text to speech (ADR 0009) closes the loop with push to talk and
    conversation mode (ADR 0010): the person speaks, Lotsman reads back the confirmation, the
    person says "yes".
+
+## Amendment: shared confirmation
+
+Step 3 as built. The rule is `packages/core/src/confirmation.ts`; it is pure and has no GTK in it.
+
+- **A confirmation** holds the action (kind, one sentence, labelled details such as the command and
+  its directory or the recipient), a creation time and a scope: the window, or one chat. Its
+  outcome is `approved`, `declined` or `expired` with a reason. `confirmThen` is the one door: it
+  runs the action only on `approved`. There is no auto-approve and no default answer.
+- **No time-based timeout.** A pending confirmation waits until it is answered. It expires when the
+  situation it was asked in is gone: the person sent another message (`new-message`), cancelled
+  the turn (`turn-cancelled`), the session or window ended (`session-ended`), or a different action
+  was proposed in the same scope (`superseded`). The book is in memory only, so a restart resumes
+  nothing; a stored card from an earlier run is drawn as expired (`restart`).
+- **First answer wins, everywhere.** The answer closes the confirmation for every surface. A later
+  answer changes nothing and is reported as already decided or expired.
+- **Window.** A transcript card (`type: 'confirmation'` host line) with Yes and No, the exact
+  action and its age. Neither button takes focus and nothing is the default. After the decision
+  the card stays, marked approved, declined or expired, without buttons.
+- **Chat.** The channel is text only (`sendToPeer` sends Markdown; no contract field offers
+  buttons), so no button protocol is invented. The question is a message that says what will
+  happen; "yes"/"ja" and "no"/"nein" (any case, trimmed) answer the single pending confirmation of
+  that chat. Any other message expires it and is then handled as usual.
+- **ACP permission requests stay on `PermissionDesk`.** They offer the agent's own option ids,
+  can queue several at once and need an answer the agent understands (`selected` plus an id), none
+  of which a yes/no carries. Folding them in would drop the agent's options or let one proposal
+  supersede an unrelated tool call. Both follow the same rules (fail closed, no timeout, first
+  answer wins); the window shows both as transcript or dialog, and a later change may route the
+  desk's display through the card.
