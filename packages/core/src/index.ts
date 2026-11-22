@@ -355,7 +355,9 @@ export {
 
 // ── Confirming an action Lotsman itself takes (ADR 0011, point 3) ───────────────────────────────
 export {
+  CONFIRMATION_HOST_TYPE,
   ConfirmationBook,
+  WINDOW_SCOPE,
   confirmThen,
   confirmationAge,
   confirmationStatusText,

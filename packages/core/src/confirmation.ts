@@ -31,6 +31,12 @@
  */
 import { _, _n, fmt } from './i18n.ts';
 
+/** The window's scope: one pane, one pending confirmation. */
+export const WINDOW_SCOPE = 'window';
+
+/** The `type` of the host line that carries a confirmation card in the transcript. */
+export const CONFIRMATION_HOST_TYPE = 'confirmation';
+
 /** One labelled fact about the action, shown verbatim: `Command` → `git push`. */
 export interface ConfirmationDetail {
   readonly label: string;
