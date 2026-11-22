@@ -26,6 +26,8 @@
 
 import { createHash } from 'node:crypto';
 
+import { readConfirmReply, type ConfirmationBook } from '../confirmation.ts';
+import { chatScope } from './confirm.ts';
 import { deliveryOfTask } from '../profile/delivery.ts';
 import { answerQuestion, type AnswerResult } from '../questions/answer.ts';
 import type { RunDeps } from '../task/deps.ts';
@@ -122,6 +124,11 @@ export interface ReceiveOptions {
   readonly refs?: RefStore;
   /** When given, `/run`, `/tasks` and `/status` are answered from it, before any other reading of a message. */
   readonly commands?: ChatCommands | (() => ChatCommands | undefined);
+  /**
+   * Where a pending confirmation of this chat (`confirm.ts`) is answered. A plain yes/ja or no/nein
+   * answers it; any other message expires it and is then handled as usual. Absent: nothing to answer.
+   */
+  readonly confirmations?: ConfirmationBook;
 }
 
 export function abortableSleep(ms: number, signal: AbortSignal): Promise<void> {
@@ -236,6 +243,25 @@ export async function runReceiveLoop(options: ReceiveOptions): Promise<void> {
   const refs = options.refs ?? memoryRefs();
 
   const handle = async (text: string, replyToId: string | null) => {
+    const confirmations = options.confirmations;
+    if (confirmations) {
+      const scope = chatScope(settings);
+      const pending = confirmations.pendingIn(scope);
+      const said = readConfirmReply(text);
+      if (pending && said !== null) {
+        const result = confirmations.answer(pending.id, said);
+        return reply(
+          msg(
+            result.type === 'decided'
+              ? said
+                ? STRINGS.confirmedYes
+                : STRINGS.confirmedNo
+              : STRINGS.confirmLate,
+          ),
+        );
+      }
+      confirmations.expireScope(scope, 'new-message');
+    }
     if (command(text)) return;
     const requests = typeof options.requests === 'function' ? options.requests() : options.requests;
     if (requests) {
@@ -264,6 +290,9 @@ export async function runReceiveLoop(options: ReceiveOptions): Promise<void> {
         return;
       case 'nothing-open':
         // A bare yes or no has nothing to say to an agent: it was meant for a question that is gone.
+        if (options.confirmations?.latestIn(chatScope(settings)) && readConfirmReply(text) !== null) {
+          return reply(msg(STRINGS.confirmLate));
+        }
         if (requests && parseAnswer(text).kind === 'text') return requests.submit(text.trim(), false);
         return reply(msg(STRINGS.noQuestionOpen));
       case 'ambiguous': {

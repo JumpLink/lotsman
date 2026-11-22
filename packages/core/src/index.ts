@@ -674,6 +674,7 @@ export {
   type ChatCommands,
   type ReceiveOptions,
 } from './messenger/receive.ts';
+export { chatScope, confirmInChat, confirmationText } from './messenger/confirm.ts';
 export { isId } from './parse.ts';
 export { schemaKeys, type SchemaNode } from './schema.ts';
 export { ProfileOptionError, applyConfigOptions } from './profile/apply.ts';

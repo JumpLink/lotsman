@@ -1,8 +1,11 @@
 import { describe, expect, it } from '@gjsify/unit';
 
 import {
+  ConfirmationBook,
   McpLink,
   abortableSleep,
+  chatScope,
+  confirmInChat,
   answerQuestion,
   chatSays,
   combineChannels,
@@ -1020,6 +1023,116 @@ export default async () => {
       expect(resets).toBe(1);
       expect(asked[0]).toStrictEqual({ after: BEFORE, waitS: 1 });
       expect(asked[1]!.after).toBe(BEFORE);
+    });
+  });
+
+  await describe('confirming an action in the chat (ADR 0011)', async () => {
+    const ACTION = {
+      kind: 'run-command',
+      summary: 'Run a command',
+      details: [{ label: 'Command', value: 'echo hi' }],
+    };
+
+    async function inChat(
+      body: (h: {
+        fake: FakeMcp;
+        link: McpLink;
+        book: ConfirmationBook;
+        ran: { n: number };
+        ask: () => ReturnType<typeof confirmInChat<number>>;
+      }) => Promise<void>,
+    ): Promise<void> {
+      await withFakeMcp({}, async (fake) => {
+        const link = linkTo(fake);
+        const book = new ConfirmationBook();
+        const abort = new AbortController();
+        const ran = { n: 0 };
+        const loop = runReceiveLoop({
+          link,
+          settings: SETTINGS,
+          deps: runDeps({ value: [] }),
+          cursor: memoryCursor(BEFORE),
+          signal: abort.signal,
+          confirmations: book,
+          timeoutS: 1,
+          minCycleMs: 0,
+          backoff: { initialMs: 10, maxMs: 40 },
+          sleep: (_ms, signal) => abortableSleep(10, signal),
+        });
+        try {
+          await body({
+            fake,
+            link,
+            book,
+            ran,
+            ask: () => confirmInChat(book, link, SETTINGS, ACTION, () => ++ran.n),
+          });
+        } finally {
+          abort.abort();
+          await loop;
+          await link.close();
+        }
+      });
+    }
+
+    await it('sends the question as text and runs the action after a yes (any case, ja)', async () => {
+      for (const word of ['yes', ' JA ']) {
+        await inChat(async ({ fake, ask, ran }) => {
+          const done = ask();
+          await until(() => sent(fake).length === 1, 'the question');
+          const text = String(sent(fake)[0]!.args.text);
+          expect(text).toContain('Run a command');
+          expect(text).toContain('echo hi');
+          fake.deliver('2026-10-10T12:00:00.000Z', word);
+          expect((await done).type).toBe('ran');
+          expect(ran.n).toBe(1);
+        });
+      }
+    });
+
+    await it('a no or nein cancels, and nothing runs', async () => {
+      for (const word of ['no', 'Nein']) {
+        await inChat(async ({ fake, ask, ran }) => {
+          const done = ask();
+          await until(() => sent(fake).length === 1, 'the question');
+          fake.deliver('2026-10-10T12:00:00.000Z', word);
+          expect((await done).type).toBe('not-run');
+          expect(ran.n).toBe(0);
+        });
+      }
+    });
+
+    await it('any other message expires it, and a later yes is reported as already decided', async () => {
+      await inChat(async ({ fake, ask, ran, book }) => {
+        const done = ask();
+        await until(() => sent(fake).length === 1, 'the question');
+        fake.deliver('2026-10-10T12:00:00.000Z', 'what is the weather');
+        const result = await done;
+        expect(result.type).toBe('not-run');
+        expect(book.latestIn(chatScope(SETTINGS))?.reason).toBe('new-message');
+        fake.deliver('2026-10-10T12:00:01.000Z', 'yes');
+        await until(
+          () => sent(fake).some((call) => String(call.args.text).includes('already decided')),
+          'the late reply',
+        );
+        expect(ran.n).toBe(0);
+      });
+    });
+
+    await it('a question that could not be sent runs nothing and leaves nothing pending', async () => {
+      await withFakeMcp({ sendError: 'down' }, async (fake) => {
+        const link = linkTo(fake);
+        const book = new ConfirmationBook();
+        let ran = 0;
+        try {
+          const result = await confirmInChat(book, link, SETTINGS, ACTION, () => ++ran);
+          expect(result.type).toBe('not-run');
+          expect(ran).toBe(0);
+          expect(book.pending().length).toBe(0);
+        } finally {
+          await link.close();
+        }
+      });
     });
   });
 };
