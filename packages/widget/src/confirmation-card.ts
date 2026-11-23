@@ -40,7 +40,7 @@ export function buildConfirmationCard(
     cssClasses: ['card', CSS.toolCard, CSS.confirmCard],
   });
   const head = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
-  head.append(new Gtk.Image({ iconName: 'dialog-question-symbolic', pixelSize: 16 }));
+  head.append(new Gtk.Image({ iconName: 'dialog-warning-symbolic', pixelSize: 16 }));
   head.append(label(confirmation.action.summary, [CSS.toolTitle], false));
   card.append(head);
 
