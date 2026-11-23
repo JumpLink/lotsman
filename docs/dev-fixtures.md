@@ -71,6 +71,8 @@ LOTSMAN_APP_AGENT=stand-in LOTSMAN_APP_THINKING=1 LOTSMAN_STANDIN_PERMISSION=1 L
 
 **A confirmation card without an agent's help.** `LOTSMAN_APP_CONFIRM=pending|approved|declined|expired` puts a fixture action (`npm test` in a directory) through the real `AgentSession.confirm` once a session is filed (send a prompt with `LOTSMAN_APP_THINKING=1`). `pending` stays open, so its age refreshes after a minute; the others settle 2 s later through the book's own `answer` / `expire`, so the card is seen rebuilding in place. Nothing runs unless the answer is yes.
 
+**The follow meeting a card, measured.** `app/tests/probes/card-scroll.ts` builds the real `TranscriptView`, appends a card to a long transcript and asserts the Yes button lies inside the viewport, that a decided (shrinking) card keeps the end in view and that a reader who scrolled up is not moved. Build and run it under `headless-run` (command in its header); it exits 1 on a failed case. It is the check for \"the adjustment says end but the screen does not\": `changed` fires inside the viewport's allocation, so the follow writes from an idle.
+
 `LOTSMAN_APP_THINKING=1` sends the prompt, `LOTSMAN_APP_PROMPT=<text>` says which. The two rules about *reading* a
 knob — what `LOTSMAN_STANDIN_CHUNKS` does with a number, and that both spellings of "off" are off — are stated
 once, in `AGENTS.md` § Run / build / test, and the front matter above says why they are not here again.
