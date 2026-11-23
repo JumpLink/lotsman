@@ -23,3 +23,4 @@ parts stays **Accepted** and names the record and the parts.
 | [0009](0009-voice-as-a-surface.md) | Voice as a surface | Proposed |
 | [0010](0010-conversation-mode.md) | Conversation mode | Proposed |
 | [0011](0011-language-first-commands-as-shortcuts.md) | Language first, commands as shortcuts | Accepted |
+| [0012](0012-wake-word-and-hands-free-turns.md) | Wake word and hands-free turns | Proposed |
