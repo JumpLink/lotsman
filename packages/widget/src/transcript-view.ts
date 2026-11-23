@@ -314,7 +314,7 @@ export class TranscriptView {
       this.#followPending = true;
       this.#followAttempts = 0;
     }
-    if (update.attemptFollow) this.#tryFollow();
+    if (update.attemptFollow) this.#followAfterAllocation();
   }
 
   /** The name above each agent bubble. Takes effect for rows built after it, so set it before `setEntries`. */
@@ -523,6 +523,30 @@ export class TranscriptView {
         return GLib.SOURCE_REMOVE;
       });
     }
+  }
+
+  /**
+   * Pay an owed follow on an idle, never from inside the notification.
+   *
+   * **`changed` is emitted by the viewport from inside its own `size_allocate`, and a `set_value` made
+   * there is lost to the screen.** The adjustment takes the value — `get_value()` reads the end — but the
+   * viewport's `queue_allocate` for it lands while that very allocation is running and is dropped, so the
+   * content keeps the old offset until something else allocates. Measured on a confirmation card
+   * appended at the end (`app/tests/probes/card-scroll.ts`): `value 544 / upper 1064 / page 520`, the
+   * buttons still 221 px below the pane, for as long as nothing else moved. A card is the case that shows
+   * it because its height settles after the append, so the first `changed` it causes is the one that
+   * matters; a growing bubble was rescued by the next chunk's own allocation.
+   *
+   * An idle runs after the allocation has finished, so the write is a scroll like any other. One at a
+   * time, for the ownership reason `#scrollSource` documents.
+   */
+  #followAfterAllocation(): void {
+    if (!this.#followPending || this.#scrollSource !== null) return;
+    this.#scrollSource = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+      this.#scrollSource = null;
+      this.#tryFollow();
+      return GLib.SOURCE_REMOVE;
+    });
   }
 
   /**
