@@ -1203,6 +1203,23 @@ export class LotsmanChat extends Adw.Bin {
     return this.#agent.stagePermissionRequest();
   }
 
+  /** Whether a confirmation card can be put up yet. `AgentSession.confirmationReady`. */
+  get confirmationReady(): boolean {
+    return this.#agent.confirmationReady;
+  }
+
+  /** Put a fixture confirmation through the real `confirm`. `AgentSession.stageConfirmation`. */
+  stageConfirmation(): ReturnType<AgentSession['stageConfirmation']> {
+    return this.#agent.stageConfirmation();
+  }
+
+  /** Answer or expire a staged confirmation the way a click or a new message would. */
+  settleConfirmation(id: string, how: 'approved' | 'declined' | 'expired'): void {
+    const book = this.#agent.confirmations;
+    if (how === 'expired') book.expire(id, 'new-message');
+    else book.answer(id, how === 'approved');
+  }
+
   /** Set a config option through the real path, starting the agent if there is none. */
   stageConfigOption(controlId: string, value: string, prompt?: string): Promise<void> {
     return this.#agent.stageConfigOption(controlId, value, prompt);

@@ -1470,6 +1470,35 @@ export class AgentSession {
     return answerFor(await this.#ask(request));
   }
 
+  /** Whether a confirmation card can be shown: it is a transcript line, so it needs a filed session. */
+  get confirmationReady(): boolean {
+    return this.#persists && this.#session !== null;
+  }
+
+  /**
+   * Put a fixture confirmation through the real `confirm`, for `LOTSMAN_APP_CONFIRM`.
+   *
+   * Same rule as `stagePermissionRequest`: the card, the book and the answer are the real ones, so a
+   * screenshot shows the gate and not a picture of it. The staged action only reports that it ran; it
+   * runs nothing else, and nothing runs without a yes.
+   */
+  stageConfirmation(): { readonly id: string; readonly done: Promise<ConfirmedRun<string>> } {
+    const done = this.confirm(
+      {
+        kind: 'run-command',
+        summary: 'Run a command in /tmp/lotsman-demo',
+        details: [
+          { label: 'Command', value: 'npm test' },
+          { label: 'Directory', value: '/tmp/lotsman-demo' },
+        ],
+      },
+      () => 'ran',
+    );
+    // `confirmThen` proposes synchronously, so the card is already in the book here.
+    const pending = this.confirmations.pendingIn(WINDOW_SCOPE);
+    return { id: pending?.id ?? '', done };
+  }
+
   /**
    * Nobody chose, for a reason this controller knows. **Every fail-closed path is here**, so a new one
    * has nowhere else to go and cannot forget the answer.

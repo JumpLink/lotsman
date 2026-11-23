@@ -121,6 +121,10 @@ import Template from './window.blp';
  */
 const PERMISSION_STAGE_POLL_MS = 250;
 const PERMISSION_STAGE_DEADLINE_MS = 8_000;
+/** `LOTSMAN_APP_CONFIRM`: how often to ask whether a session is filed yet, how long to wait, and the pause before settling. */
+const CONFIRM_STAGE_POLL_MS = 500;
+const CONFIRM_STAGE_DEADLINE_MS = 30_000;
+const CONFIRM_SETTLE_DELAY_MS = 2_000;
 
 /**
  * How often the failure-dialog hooks reconsiders, and what one step buys them.
@@ -283,6 +287,8 @@ export class MainWindow extends Adw.ApplicationWindow {
   #closing = false;
   /** The `LOTSMAN_APP_PERMISSION` staging timer, so a close cannot fire it into a window that is gone. */
   #permissionSource: number | null = null;
+  /** The `LOTSMAN_APP_CONFIRM` timers (poll, then settle); both die with the window. */
+  #confirmSources = new Set<number>();
   /** How many times the staging poll has fired. See `PERMISSION_STAGE_POLL_MS`. */
   #permissionTicks = 0;
   #preferences: PreferencesDialog | null = null;
@@ -635,6 +641,8 @@ export class MainWindow extends Adw.ApplicationWindow {
         GLib.source_remove(this.#permissionSource);
         this.#permissionSource = null;
       }
+      for (const source of this.#confirmSources) GLib.source_remove(source);
+      this.#confirmSources.clear();
       // Same for the failure-dialog hooks: a window closed between arming them and the failure
       // arriving would otherwise be called back into — and the walk opens sessions, which is the last
       // thing a closing window should do.
@@ -740,6 +748,7 @@ export class MainWindow extends Adw.ApplicationWindow {
         return GLib.SOURCE_CONTINUE;
       });
     }
+    if (hooks.confirm !== undefined) this.#stageConfirmation(hooks.confirm);
     if (hooks.noticeDismiss === true) {
       if (this.#notice) {
         console.log('lotsman: LOTSMAN_APP_NOTICE_DISMISS — pressing the banner’s Got it');
@@ -1062,6 +1071,47 @@ export class MainWindow extends Adw.ApplicationWindow {
         `lotsman: LOTSMAN_APP_PERMISSION — the staged question was answered ${JSON.stringify(answer)}`,
       );
     });
+  }
+
+  /**
+   * Put a fixture confirmation through the real `AgentSession.confirm`, for `LOTSMAN_APP_CONFIRM`.
+   *
+   * Waits for a filed session (the card is a transcript line), then proposes; `approved`, `declined` and
+   * `expired` are then settled after `CONFIRM_SETTLE_DELAY_MS` through the book's own `answer` / `expire`,
+   * so the card is seen rebuilding in place. `pending` is left open for the age refresh.
+   */
+  #stageConfirmation(how: string): void {
+    if (how !== 'pending' && how !== 'approved' && how !== 'declined' && how !== 'expired') {
+      console.log(
+        `lotsman: LOTSMAN_APP_CONFIRM=${how} — expected pending, approved, declined or expired, not acted on`,
+      );
+      return;
+    }
+    let waitedMs = 0;
+    const poll = GLib.timeout_add(GLib.PRIORITY_DEFAULT, CONFIRM_STAGE_POLL_MS, () => {
+      waitedMs += CONFIRM_STAGE_POLL_MS;
+      if (!this.#chat.confirmationReady) {
+        if (waitedMs < CONFIRM_STAGE_DEADLINE_MS) return GLib.SOURCE_CONTINUE;
+        console.log('lotsman: LOTSMAN_APP_CONFIRM — no session was filed in time, nothing to ask about');
+      } else {
+        const { id, done } = this.#chat.stageConfirmation();
+        console.log(`lotsman: LOTSMAN_APP_CONFIRM — staged ${id}, ending as ${how}`);
+        void done.then((run) => {
+          console.log(`lotsman: LOTSMAN_APP_CONFIRM — ${id} ${run.type === 'ran' ? 'ran' : 'did not run'}`);
+        });
+        if (how !== 'pending') {
+          const settle = GLib.timeout_add(GLib.PRIORITY_DEFAULT, CONFIRM_SETTLE_DELAY_MS, () => {
+            this.#confirmSources.delete(settle);
+            this.#chat.settleConfirmation(id, how);
+            return GLib.SOURCE_REMOVE;
+          });
+          this.#confirmSources.add(settle);
+        }
+      }
+      this.#confirmSources.delete(poll);
+      return GLib.SOURCE_REMOVE;
+    });
+    this.#confirmSources.add(poll);
   }
 }
 
