@@ -1219,8 +1219,8 @@ export class LotsmanChat extends Adw.Bin {
   }
 
   /** Put a fixture confirmation through the real `confirm`. `AgentSession.stageConfirmation`. */
-  stageConfirmation(): ReturnType<AgentSession['stageConfirmation']> {
-    return this.#agent.stageConfirmation();
+  stageConfirmation(action: ConfirmationAction): ReturnType<AgentSession['stageConfirmation']> {
+    return this.#agent.stageConfirmation(action);
   }
 
   /** Answer or expire a staged confirmation the way a click or a new message would. */

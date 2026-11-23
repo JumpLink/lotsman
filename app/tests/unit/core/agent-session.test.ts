@@ -2012,7 +2012,7 @@ export default async () => {
     await it('stages a fixture card that runs only after a yes', async () => {
       const h = harness();
       expect(h.session.confirmationReady).toBe(true);
-      const { id, done } = h.session.stageConfirmation();
+      const { id, done } = h.session.stageConfirmation(ACTION);
       expect(h.session.confirmations.get(id)?.status).toBe('pending');
       h.session.confirmations.answer(id, true);
       const result = await done;

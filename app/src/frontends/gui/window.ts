@@ -80,6 +80,7 @@ import type Gtk from '@girs/gtk-4.0';
 import { labelOf, type AgentSource, type SessionRecord, type TranscriptEntry } from '@lotsman/session';
 
 import {
+  PERSON_NEEDED_OFF,
   parseConfigOptionSpec,
   type AgentCommand,
   type ConfirmationAction,
@@ -88,6 +89,7 @@ import {
   type ModelPolicy,
   type NoticeView,
   type RecordedResolution,
+  type SkillTask,
 } from '@lotsman/core';
 import { LotsmanChat, type SpeechEngine } from '@lotsman/widget';
 import {
@@ -99,7 +101,7 @@ import {
 } from './constants.ts';
 import type { AppDictation } from './dictation-hook.ts';
 import type { LotsmanHooks } from './hooks.ts';
-import { notRunText } from '../cli/task-commands.ts';
+import { notRunText, runAction } from '../cli/task-commands.ts';
 import type { RunRequestHost } from './run-requests.ts';
 import { PreferencesDialog, type PreferencesActions } from './preferences.ts';
 import { SessionList } from './session-list.ts';
@@ -1139,7 +1141,7 @@ export class MainWindow extends Adw.ApplicationWindow {
         if (waitedMs < CONFIRM_STAGE_DEADLINE_MS) return GLib.SOURCE_CONTINUE;
         console.log('lotsman: LOTSMAN_APP_CONFIRM — no session was filed in time, nothing to ask about');
       } else {
-        const { id, done } = this.#chat.stageConfirmation();
+        const { id, done } = this.#chat.stageConfirmation(stagedAction());
         console.log(`lotsman: LOTSMAN_APP_CONFIRM — staged ${id}, ending as ${how}`);
         void done.then((run) => {
           console.log(`lotsman: LOTSMAN_APP_CONFIRM — ${id} ${run.type === 'ran' ? 'ran' : 'did not run'}`);
@@ -1158,6 +1160,27 @@ export class MainWindow extends Adw.ApplicationWindow {
     });
     this.#confirmSources.add(poll);
   }
+}
+
+/**
+ * The action a staged card asks about, built by the same `runAction` a real `/run` uses, from a
+ * fixture task. The words on the card therefore come from the app's own catalogue, translated or not,
+ * exactly as they would for a person; a hand-written copy here would stay English in every locale.
+ */
+function stagedAction(): ConfirmationAction {
+  const fixture: SkillTask = {
+    id: 'tests',
+    description: '',
+    allowedTools: null,
+    profile: null,
+    rights: 'confirm',
+    params: [],
+    precheck: null,
+    personNeeded: PERSON_NEEDED_OFF,
+    cwd: '/tmp/lotsman-demo',
+    body: 'Run the tests',
+  };
+  return runAction((id) => (id === fixture.id ? fixture : null), fixture.id, {});
 }
 
 GObject.registerClass(

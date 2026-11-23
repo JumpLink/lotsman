@@ -758,7 +758,7 @@ export class AgentSession {
         type: CONFIRMATION_HOST_TYPE,
         text: action.summary,
         data: { id: confirmation.id, action: { ...action, details: [...action.details] } },
-        icon: 'dialog-question-symbolic',
+        icon: 'dialog-warning-symbolic',
       });
     });
   }
@@ -1479,21 +1479,15 @@ export class AgentSession {
    * Put a fixture confirmation through the real `confirm`, for `LOTSMAN_APP_CONFIRM`.
    *
    * Same rule as `stagePermissionRequest`: the card, the book and the answer are the real ones, so a
-   * screenshot shows the gate and not a picture of it. The staged action only reports that it ran; it
+   * screenshot shows the gate and not a picture of it. The caller passes the action, so its words come
+   * from the same code the real `/run` uses. The staged run only reports that it ran; it
    * runs nothing else, and nothing runs without a yes.
    */
-  stageConfirmation(): { readonly id: string; readonly done: Promise<ConfirmedRun<string>> } {
-    const done = this.confirm(
-      {
-        kind: 'run-command',
-        summary: 'Run a command in /tmp/lotsman-demo',
-        details: [
-          { label: 'Command', value: 'npm test' },
-          { label: 'Directory', value: '/tmp/lotsman-demo' },
-        ],
-      },
-      () => 'ran',
-    );
+  stageConfirmation(action: ConfirmationAction): {
+    readonly id: string;
+    readonly done: Promise<ConfirmedRun<string>>;
+  } {
+    const done = this.confirm(action, () => 'ran');
     // `confirmThen` proposes synchronously, so the card is already in the book here.
     const pending = this.confirmations.pendingIn(WINDOW_SCOPE);
     return { id: pending?.id ?? '', done };
