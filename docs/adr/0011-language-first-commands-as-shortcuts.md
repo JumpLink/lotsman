@@ -109,7 +109,12 @@ the part that understands language. What it lacks is a way to *do* what Lotsman 
    MCP server SDK on GJS ([gjsify#2389](https://github.com/gjsify/gjsify/issues/2389), as in ADR
    0008) or a small hand-written JSON-RPC server. Read-only tools first.
    *Done: hand-written (`packages/core/src/tool-server.ts`), tools `lotsman_status` and
-   `lotsman_tasks`; `/run` stays a command until step 3.*
+   `lotsman_tasks`.*
+   *Step 3 added `lotsman_run`. The stdio child cannot reach the confirmation book (it lives in the
+   window's or `listen`'s memory), so the tool runs nothing: it checks the request, files it in a
+   run inbox (`app/src/core/run-inbox.ts`) and answers "pending". The window or `listen` takes it,
+   asks through the shared confirmation and runs the task only after a yes. A held-open call would
+   race the person's answer against the agent's tool timeout. `/run` shares `confirmedRun`.*
 3. **Shared confirmation.** The pure rule in core, then each surface renders it. The first
    outward tool (run a task that sends) gates on it.
    *Done: the rule and its three surfaces (see "Amendment: shared confirmation" below); `/run` as

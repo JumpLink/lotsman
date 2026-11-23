@@ -32,6 +32,8 @@ import {
   messengerCommand,
   messengerProblem,
   runReceiveLoop,
+  ConfirmationBook,
+  confirmInChat,
   routeChannels,
   unreachableProfileNotes,
   type ChannelFailure,
@@ -60,6 +62,8 @@ import { createRequestsHolder } from './chat-requests.ts';
 import { readConfig, runDeps, trackedAgents } from './listen-deps.ts';
 import { mcpServersFor } from '../../core/own-mcp.ts';
 import { chatCommands } from './tools.ts';
+import { runInbox } from '../../core/run-inbox.ts';
+import { confirmedRun, type Confirm } from './task-commands.ts';
 
 const FAILED = new Set(['unknown', 'dropped', 'expired', 'busy', 'invalid']);
 
@@ -303,6 +307,30 @@ const command = (paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
           }),
         );
     }
+    // One book for the chat: `/run` and the agent's `lotsman_run` ask in it, and a yes or no in the
+    // receive loop answers it. Memory only, so a restart resumes nothing.
+    const book = new ConfirmationBook();
+    const confirm: Confirm | null = messenger
+      ? (action, run) => confirmInChat(book, messenger.link, messenger.settings, action, run)
+      : null;
+    // Requests an agent filed with `lotsman_run`. Without a chat there is nobody to ask here, so they
+    // stay queued for the window instead of being run unasked.
+    const inbox = runInbox(listen.stateDir);
+    const serveRequests = () => {
+      if (!confirm || !messenger) return;
+      for (const request of inbox.take()) {
+        void confirmedRun(request.task, request.params, live, confirm)
+          .then((text) => sendToPeer(messenger.link, messenger.settings, text))
+          .catch((error: unknown) =>
+            err(
+              fmt(_('  run request: {reason}'), {
+                reason: error instanceof Error ? error.message : String(error),
+              }),
+            ),
+          );
+      }
+    };
+    const requestTimer = setInterval(serveRequests, 1000);
     const receive = (signal: AbortSignal) =>
       runReceiveLoop({
         link: messenger!.link,
@@ -312,7 +340,8 @@ const command = (paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
         cursor: fileCursorStore(messengerCursorFile(listen.stateDir)),
         refs: fileRefStore(messengerRefsFile(listen.stateDir)),
         requests: () => holder?.current(),
-        commands: chatCommands(listen, live),
+        commands: chatCommands(listen, live, confirm!),
+        confirmations: book,
         log: (line) => err(fmt(_('  {line}'), { line })),
         signal,
       }).catch((error: unknown) =>
@@ -341,6 +370,8 @@ const command = (paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
       // A stop ends the agents, which ends their runs as failed.
       await agents.closeAll();
     } finally {
+      clearInterval(requestTimer);
+      book.expireAll('session-ended');
       process.off('SIGINT', onSignal);
       process.off('SIGTERM', onSignal);
       abort.abort();

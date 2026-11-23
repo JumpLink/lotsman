@@ -69,6 +69,8 @@ import {
   type AgentCommand,
   type AgentSnapshot,
   type ComposerInput,
+  type ConfirmationAction,
+  type ConfirmedRun,
   type ConnectionFacts,
   type EmptyStateView,
   type FailureNotice,
@@ -1201,6 +1203,31 @@ export class LotsmanChat extends Adw.Bin {
   /** Put a fixture question through the real gate. `AgentSession.stagePermissionRequest`. */
   stagePermissionRequest(): Promise<Awaited<ReturnType<AgentSession['stagePermissionRequest']>>> {
     return this.#agent.stagePermissionRequest();
+  }
+
+  /**
+   * Ask the person in the transcript and run `run` only after a yes (`AgentSession.confirm`).
+   * Fails closed: with no session to show the card in, nothing runs.
+   */
+  confirm<T>(action: ConfirmationAction, run: () => T | Promise<T>): Promise<ConfirmedRun<T>> {
+    return this.#agent.confirm(action, run);
+  }
+
+  /** Whether a confirmation card can be put up yet. `AgentSession.confirmationReady`. */
+  get confirmationReady(): boolean {
+    return this.#agent.confirmationReady;
+  }
+
+  /** Put a fixture confirmation through the real `confirm`. `AgentSession.stageConfirmation`. */
+  stageConfirmation(action: ConfirmationAction): ReturnType<AgentSession['stageConfirmation']> {
+    return this.#agent.stageConfirmation(action);
+  }
+
+  /** Answer or expire a staged confirmation the way a click or a new message would. */
+  settleConfirmation(id: string, how: 'approved' | 'declined' | 'expired'): void {
+    const book = this.#agent.confirmations;
+    if (how === 'expired') book.expire(id, 'new-message');
+    else book.answer(id, how === 'approved');
   }
 
   /** Set a config option through the real path, starting the agent if there is none. */

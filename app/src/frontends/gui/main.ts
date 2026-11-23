@@ -68,6 +68,8 @@ import { realDictation } from './dictation-engine.ts';
 import { speechFromHook } from './speech-hook.ts';
 import { MainWindow } from './window.ts';
 import { mcpServersFor } from '../../core/own-mcp.ts';
+import { listenPaths } from '../../core/paths.ts';
+import { runRequestHost } from './run-requests.ts';
 import { APP_ID, APP_NAME, APP_VERSION } from './constants.ts';
 
 // Pin GTK 4 before libadwaita pulls it in; keep the import referenced. Without this the import looks
@@ -192,6 +194,9 @@ const mcpServers = mcpServersFor(
   (hooks.mcp ?? []).map((name) => ({ name, command: 'true', args: [], env: [] })),
 );
 
+// Where an agent's `lotsman_run` lands: the window asks the person, then runs the task (run-requests.ts).
+const runRequests = runRequestHost(listenPaths(), { argv: process.argv, execPath: process.execPath });
+
 const status = await runAdwaitaApp({
   applicationId: APP_ID,
   css: APP_CSS,
@@ -235,6 +240,7 @@ const status = await runAdwaitaApp({
       ...(speech ? { speech } : {}),
       dictation,
       ...(mcpServers.length > 0 ? { mcpServers } : {}),
+      ...(runRequests ? { runRequests } : {}),
       // **Only when no agent is pinned.** `LOTSMAN_APP_AGENT` means "this agent, for everything in this window"
       // — a fixture record naming `opencode` must be answered by the stand-in, not start a real one.
       ...(hooks.agent

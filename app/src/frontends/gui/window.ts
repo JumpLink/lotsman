@@ -80,13 +80,16 @@ import type Gtk from '@girs/gtk-4.0';
 import { labelOf, type AgentSource, type SessionRecord, type TranscriptEntry } from '@lotsman/session';
 
 import {
+  PERSON_NEEDED_OFF,
   parseConfigOptionSpec,
   type AgentCommand,
+  type ConfirmationAction,
   type EmptyStateView,
   type McpServer,
   type ModelPolicy,
   type NoticeView,
   type RecordedResolution,
+  type SkillTask,
 } from '@lotsman/core';
 import { LotsmanChat, type SpeechEngine } from '@lotsman/widget';
 import {
@@ -98,6 +101,8 @@ import {
 } from './constants.ts';
 import type { AppDictation } from './dictation-hook.ts';
 import type { LotsmanHooks } from './hooks.ts';
+import { notRunText, runAction } from '../cli/task-commands.ts';
+import type { RunRequestHost } from './run-requests.ts';
 import { PreferencesDialog, type PreferencesActions } from './preferences.ts';
 import { SessionList } from './session-list.ts';
 import Template from './window.blp';
@@ -121,6 +126,12 @@ import Template from './window.blp';
  */
 const PERMISSION_STAGE_POLL_MS = 250;
 const PERMISSION_STAGE_DEADLINE_MS = 8_000;
+/** `LOTSMAN_APP_CONFIRM`: how often to ask whether a session is filed yet, how long to wait, and the pause before settling. */
+const CONFIRM_STAGE_POLL_MS = 500;
+const CONFIRM_STAGE_DEADLINE_MS = 30_000;
+const CONFIRM_SETTLE_DELAY_MS = 2_000;
+/** How often the window looks in the run inbox. A request waits for a conversation to show its card in. */
+const RUN_REQUEST_POLL_MS = 1_000;
 
 /**
  * How often the failure-dialog hooks reconsiders, and what one step buys them.
@@ -156,6 +167,8 @@ const MIDTURN_HOOK_STEP_MS = 50;
  * A `SessionStore` would drag `create`/`update`/`remove` in beside them.
  */
 export interface MainWindowOptions {
+  /** Requests an agent filed with `lotsman_run`: asked about in the open conversation, run after a yes. */
+  readonly runRequests?: RunRequestHost;
   /** Read once at startup. See `hooks.ts` — a state only a click can reach is a state untested. */
   readonly hooks: LotsmanHooks;
   /**
@@ -283,6 +296,9 @@ export class MainWindow extends Adw.ApplicationWindow {
   #closing = false;
   /** The `LOTSMAN_APP_PERMISSION` staging timer, so a close cannot fire it into a window that is gone. */
   #permissionSource: number | null = null;
+  /** The `LOTSMAN_APP_CONFIRM` timers (poll, then settle); both die with the window. */
+  #confirmSources = new Set<number>();
+  #runRequestSource: number | null = null;
   /** How many times the staging poll has fired. See `PERMISSION_STAGE_POLL_MS`. */
   #permissionTicks = 0;
   #preferences: PreferencesDialog | null = null;
@@ -341,6 +357,7 @@ export class MainWindow extends Adw.ApplicationWindow {
     this._sidebarTitle.title = APP_NAME;
 
     this.#loadSessions = options.loadSessions;
+    if (options.runRequests) this.#serveRunRequests(options.runRequests);
     this.#sessions = new SessionList({ onOpen: (record) => this.#open(record) });
     // **The widget, built from this window's own options.** The two idle pages travel with it as
     // `closed` and `no-agent` slots — they are markup of this file's (`window.blp`) because their
@@ -635,6 +652,12 @@ export class MainWindow extends Adw.ApplicationWindow {
         GLib.source_remove(this.#permissionSource);
         this.#permissionSource = null;
       }
+      if (this.#runRequestSource !== null) {
+        GLib.source_remove(this.#runRequestSource);
+        this.#runRequestSource = null;
+      }
+      for (const source of this.#confirmSources) GLib.source_remove(source);
+      this.#confirmSources.clear();
       // Same for the failure-dialog hooks: a window closed between arming them and the failure
       // arriving would otherwise be called back into — and the walk opens sessions, which is the last
       // thing a closing window should do.
@@ -740,6 +763,7 @@ export class MainWindow extends Adw.ApplicationWindow {
         return GLib.SOURCE_CONTINUE;
       });
     }
+    if (hooks.confirm !== undefined) this.#stageConfirmation(hooks.confirm);
     if (hooks.noticeDismiss === true) {
       if (this.#notice) {
         console.log('lotsman: LOTSMAN_APP_NOTICE_DISMISS — pressing the banner’s Got it');
@@ -1063,6 +1087,100 @@ export class MainWindow extends Adw.ApplicationWindow {
       );
     });
   }
+
+  /**
+   * Ask about, and run, what an agent filed with `lotsman_run`.
+   *
+   * Takes nothing until a conversation is open: the card is a transcript line, and a request taken with
+   * nowhere to show it would be lost rather than asked about. Each one goes through the chat's
+   * `confirm`, so it is the same card, book and rule as every other outward action, and the task runs
+   * only after a yes; the outcome is written into the transcript beside the card.
+   */
+  #serveRunRequests(host: RunRequestHost): void {
+    this.#runRequestSource = GLib.timeout_add(GLib.PRIORITY_DEFAULT, RUN_REQUEST_POLL_MS, () => {
+      if (!this.#chat.confirmationReady) return GLib.SOURCE_CONTINUE;
+      for (const request of host.take()) {
+        const note = (text: string) =>
+          void this.#chat
+            .appendHostItem({ type: 'run-result', text, icon: 'system-run-symbolic' })
+            .catch(() => {});
+        let action: ConfirmationAction;
+        try {
+          action = host.action(request);
+        } catch (error) {
+          note(error instanceof Error ? error.message : String(error));
+          continue;
+        }
+        void this.#chat
+          .confirm(action, () => host.run(request))
+          .then((done) => note(done.type === 'ran' ? done.value : notRunText(done.outcome)))
+          .catch((error: unknown) => note(error instanceof Error ? error.message : String(error)));
+      }
+      return GLib.SOURCE_CONTINUE;
+    });
+  }
+
+  /**
+   * Put a fixture confirmation through the real `AgentSession.confirm`, for `LOTSMAN_APP_CONFIRM`.
+   *
+   * Waits for a filed session (the card is a transcript line), then proposes; `approved`, `declined` and
+   * `expired` are then settled after `CONFIRM_SETTLE_DELAY_MS` through the book's own `answer` / `expire`,
+   * so the card is seen rebuilding in place. `pending` is left open for the age refresh.
+   */
+  #stageConfirmation(how: string): void {
+    if (how !== 'pending' && how !== 'approved' && how !== 'declined' && how !== 'expired') {
+      console.log(
+        `lotsman: LOTSMAN_APP_CONFIRM=${how} — expected pending, approved, declined or expired, not acted on`,
+      );
+      return;
+    }
+    let waitedMs = 0;
+    const poll = GLib.timeout_add(GLib.PRIORITY_DEFAULT, CONFIRM_STAGE_POLL_MS, () => {
+      waitedMs += CONFIRM_STAGE_POLL_MS;
+      if (!this.#chat.confirmationReady) {
+        if (waitedMs < CONFIRM_STAGE_DEADLINE_MS) return GLib.SOURCE_CONTINUE;
+        console.log('lotsman: LOTSMAN_APP_CONFIRM — no session was filed in time, nothing to ask about');
+      } else {
+        const { id, done } = this.#chat.stageConfirmation(stagedAction());
+        console.log(`lotsman: LOTSMAN_APP_CONFIRM — staged ${id}, ending as ${how}`);
+        void done.then((run) => {
+          console.log(`lotsman: LOTSMAN_APP_CONFIRM — ${id} ${run.type === 'ran' ? 'ran' : 'did not run'}`);
+        });
+        if (how !== 'pending') {
+          const settle = GLib.timeout_add(GLib.PRIORITY_DEFAULT, CONFIRM_SETTLE_DELAY_MS, () => {
+            this.#confirmSources.delete(settle);
+            this.#chat.settleConfirmation(id, how);
+            return GLib.SOURCE_REMOVE;
+          });
+          this.#confirmSources.add(settle);
+        }
+      }
+      this.#confirmSources.delete(poll);
+      return GLib.SOURCE_REMOVE;
+    });
+    this.#confirmSources.add(poll);
+  }
+}
+
+/**
+ * The action a staged card asks about, built by the same `runAction` a real `/run` uses, from a
+ * fixture task. The words on the card therefore come from the app's own catalogue, translated or not,
+ * exactly as they would for a person; a hand-written copy here would stay English in every locale.
+ */
+function stagedAction(): ConfirmationAction {
+  const fixture: SkillTask = {
+    id: 'tests',
+    description: '',
+    allowedTools: null,
+    profile: null,
+    rights: 'confirm',
+    params: [],
+    precheck: null,
+    personNeeded: PERSON_NEEDED_OFF,
+    cwd: '/tmp/lotsman-demo',
+    body: 'Run the tests',
+  };
+  return runAction((id) => (id === fixture.id ? fixture : null), fixture.id, {});
 }
 
 GObject.registerClass(

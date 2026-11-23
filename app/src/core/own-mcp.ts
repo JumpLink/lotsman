@@ -8,7 +8,7 @@
  * answer is "no server", never a path that fails when the agent tries it.
  *
  * Off with `ownMcp: false` in settings.json or `LOTSMAN_MCP=0`/`false` (a hook set to `0` or `false` is
- * off). The tools themselves are read-only until the shared confirmation rule exists (`cli/tools.ts`).
+ * off). Two tools read; `lotsman_run` only files a request that the window or `listen` asks the person about (`cli/tools.ts`).
  */
 
 import { existsSync } from 'node:fs';
@@ -50,20 +50,24 @@ function cliEntry(entry: string, exists: (path: string) => boolean): string | nu
   return null;
 }
 
-/** The `mcpServers` entry that starts `lotsman mcp` with this binary, or `null` when it cannot be found. */
-export function ownMcpServer(facts: OwnMcpFacts): McpServer | null {
+/**
+ * How to start the CLI with this binary, before any subcommand: the command and its leading arguments,
+ * or `null` when the CLI cannot be found. `ownMcpServer` adds `mcp`; the window adds `run`.
+ */
+export function lotsmanCli(facts: OwnMcpFacts): { command: string; args: string[] } | null {
   const entry = facts.argv[1];
   if (!entry) return null;
   const found = cliEntry(entry, facts.exists ?? existsSync);
   if (!found) return null;
   // A bundle is run by the interpreter; a launcher script (the Flatpak's `/app/bin/lotsman`) runs itself.
-  const script = /[.]m?js$/.test(found);
-  return {
-    name: OWN_MCP_NAME,
-    command: script ? facts.execPath : found,
-    args: script ? [found, 'mcp'] : ['mcp'],
-    env: [],
-  };
+  return /[.]m?js$/.test(found) ? { command: facts.execPath, args: [found] } : { command: found, args: [] };
+}
+
+/** The `mcpServers` entry that starts `lotsman mcp` with this binary, or `null` when it cannot be found. */
+export function ownMcpServer(facts: OwnMcpFacts): McpServer | null {
+  const cli = lotsmanCli(facts);
+  if (!cli) return null;
+  return { name: OWN_MCP_NAME, command: cli.command, args: [...cli.args, 'mcp'], env: [] };
 }
 
 /**

@@ -63,6 +63,15 @@ export interface LotsmanHooks extends FrameworkHooks {
   permission?: boolean;
 
   /**
+   * `LOTSMAN_APP_CONFIRM` — put a confirmation card in front of the real `AgentSession.confirm`, once a
+   * session is filed (send a prompt too: `LOTSMAN_APP_THINKING=1`). The value is how it ends:
+   * `pending` leaves it open (its age refreshes every minute), `approved`, `declined` or `expired`
+   * settle it 2 s later, so the card is seen rebuilding in
+   * place. Anything else is refused with a line in the log.
+   */
+  confirm?: string;
+
+  /**
    * `LOTSMAN_APP_CONFIG` — set a session config option at startup, **as `configId=valueId`**.
    *
    * For the same reason: a `Gtk.DropDown` is exactly the widget the devtools plane cannot operate —
@@ -320,6 +329,7 @@ export function readHooks(env: Record<string, string | undefined> = process.env)
     session: hookValue(env, 'SESSION'),
     agent: hookValue(env, 'AGENT'),
     permission: hookFlag(env, 'PERMISSION'),
+    confirm: hookValue(env, 'CONFIRM'),
     config: hookValue(env, 'CONFIG'),
     // Every flag below is a boolean, not the string, so `LOTSMAN_APP_THINKING=0` reads as off at the call
     // site too — the old `!== undefined` in `window.ts` would have accepted the string `'0'` just as

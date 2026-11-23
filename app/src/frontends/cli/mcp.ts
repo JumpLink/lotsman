@@ -23,7 +23,7 @@ const MCP_SERVER_VERSION = '1';
 
 const command = (_paths: LotsmanPaths, listen: ListenPaths): CommandModule => ({
   command: 'mcp',
-  describe: _("serve Lotsman's read-only tools to an agent over MCP (stdio)"),
+  describe: _("serve Lotsman's tools to an agent over MCP (stdio)"),
   builder: (yargs) => yargs.strict(),
   handler: async () => {
     migrateConfig(listen);

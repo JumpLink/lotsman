@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-11-22 12:34+0100\n"
+"POT-Creation-Date: 2026-11-23 20:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -576,11 +576,11 @@ msgstr ""
 msgid "Dismiss warning"
 msgstr ""
 
-#: packages/widget/src/chat.ts:658
+#: packages/widget/src/chat.ts:660
 msgid "Working in {path}"
 msgstr ""
 
-#: packages/widget/src/chat.ts:1000
+#: packages/widget/src/chat.ts:1002
 #: packages/widget/src/provider-settings.ts:200
 #: packages/widget/src/provider-settings.ts:203
 msgid "Providers"

@@ -13,6 +13,7 @@ app/src/core/paths.ts
 app/src/core/private-file.ts
 app/src/core/question-actions.ts
 app/src/core/question-state.ts
+app/src/core/run-inbox.ts
 app/src/core/run-state.ts
 app/src/core/session-groups.ts
 app/src/core/settings.ts
@@ -54,6 +55,7 @@ app/src/frontends/gui/hook-value.ts
 app/src/frontends/gui/main.ts
 app/src/frontends/gui/model-policy-hook.ts
 app/src/frontends/gui/preferences.ts
+app/src/frontends/gui/run-requests.ts
 app/src/frontends/gui/session-list.ts
 app/src/frontends/gui/speech-hook.ts
 app/src/frontends/gui/window.blp
