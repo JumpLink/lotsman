@@ -14,9 +14,16 @@ import { createToolServer, type ChatCommands, type RunDeps } from '@lotsman/core
 import { ownMcpEnabled, ownMcpServer, withOwnMcp } from '../../../src/core/own-mcp.ts';
 import { parseSettings } from '../../../src/core/settings.ts';
 import type { ListenPaths } from '../../../src/core/paths.ts';
+import { readSkill } from '../../../src/core/skills.ts';
 import { runState } from '../../../src/core/run-state.ts';
-import { statusView, tasksView } from '../../../src/frontends/cli/task-commands.ts';
-import { chatCommands, lotsmanTools, TOOL_STATUS, TOOL_TASKS } from '../../../src/frontends/cli/tools.ts';
+import { statusView, tasksView, type Confirm } from '../../../src/frontends/cli/task-commands.ts';
+import {
+  chatCommands,
+  lotsmanTools,
+  TOOL_RUN,
+  TOOL_STATUS,
+  TOOL_TASKS,
+} from '../../../src/frontends/cli/tools.ts';
 
 const SKILL = `---
 name: demo
@@ -92,11 +99,10 @@ export default async () => {
           description: string;
           inputSchema: { type: string };
         }[];
-        expect(tools.map((tool) => tool.name)).toStrictEqual([TOOL_STATUS, TOOL_TASKS]);
-        for (const tool of tools) {
-          expect(tool.inputSchema.type).toBe('object');
-          expect(tool.description).toContain('Read-only');
-        }
+        expect(tools.map((tool) => tool.name)).toStrictEqual([TOOL_STATUS, TOOL_TASKS, TOOL_RUN]);
+        for (const tool of tools) expect(tool.inputSchema.type).toBe('object');
+        for (const tool of tools.slice(0, 2)) expect(tool.description).toContain('Read-only');
+        expect(tools[2]!.description).toContain('run the tests');
 
         const status = await send(server, 3, 'tools/call', { name: TOOL_STATUS, arguments: {} });
         expect(status.result!['isError']).toBe(false);
@@ -113,7 +119,7 @@ export default async () => {
     await it('answers a bad call with a protocol error, not a crash', async () => {
       await withListen(async (listen) => {
         const server = createToolServer({ name: 'lotsman', version: '1', tools: lotsmanTools(listen) });
-        expect((await send(server, 1, 'tools/call', { name: 'lotsman_run' })).error!.code).toBe(-32602);
+        expect((await send(server, 1, 'tools/call', { name: 'no_such_tool' })).error!.code).toBe(-32602);
         expect((await send(server, 2, 'nope')).error!.code).toBe(-32601);
         expect(JSON.parse((await server.handleLine('{not json'))!).error.code).toBe(-32700);
         expect((await send(server, 3, 'ping')).result).toStrictEqual({});
@@ -143,9 +149,53 @@ export default async () => {
       expect(reply.result!['content'][0].text).toBe('went wrong');
     });
 
-    await it('offers no tool that runs a task or sends anything (ADR 0011 step 3 comes first)', async () => {
+    await it('lotsman_run only files a request: nothing runs without the person saying yes', async () => {
       await withListen(async (listen) => {
-        expect(lotsmanTools(listen).map((tool) => tool.name)).toStrictEqual([TOOL_STATUS, TOOL_TASKS]);
+        const filed: { task: string; params: Record<string, string> }[] = [];
+        const inbox = {
+          submit: (task: string, params: Readonly<Record<string, string>>) => {
+            filed.push({ task, params: { ...params } });
+            return 'req-1';
+          },
+          take: () => [],
+        };
+        const tools = lotsmanTools(listen, inbox);
+        expect(tools.map((tool) => tool.name)).toStrictEqual([TOOL_STATUS, TOOL_TASKS, TOOL_RUN]);
+        const run = tools.find((tool) => tool.name === TOOL_RUN)!;
+        const reply = await run.run({ task: 'demo', params: { topic: 'x' } });
+        expect(reply.text).toContain('Pending');
+        expect((reply.data as { status: string }).status).toBe('pending');
+        expect(filed).toStrictEqual([{ task: 'demo', params: { topic: 'x' } }]);
+
+        // A request that could never run asks nobody and files nothing.
+        let failed = 0;
+        for (const args of [{ task: 'nope' }, { task: 'demo' }, { task: 'demo', params: { bad: 'x' } }, {}]) {
+          try {
+            await run.run(args);
+          } catch {
+            failed++;
+          }
+        }
+        expect(failed).toBe(4);
+        expect(filed.length).toBe(1);
+      });
+    });
+
+    await it('the /run command runs only after an approval', async () => {
+      await withListen(async (listen) => {
+        let asked = 0;
+        const decline: Confirm = (_action, _run) => {
+          asked++;
+          return Promise.resolve({ type: 'not-run', outcome: { type: 'declined' } } as never);
+        };
+        const commands = chatCommands(
+          listen,
+          { skill: (id: string) => readSkill(listen.tasksDir, id) } as unknown as RunDeps,
+          decline,
+        );
+        const text = await commands.run('demo topic=x');
+        expect(asked).toBe(1);
+        expect(text).toContain('Not run');
       });
     });
   });
@@ -153,7 +203,11 @@ export default async () => {
   await describe('lotsman mcp: one implementation behind command and tool', async () => {
     await it('/tasks and /status say what the tools say', async () => {
       await withListen(async (listen) => {
-        const commands: ChatCommands = chatCommands(listen, {} as RunDeps);
+        const commands: ChatCommands = chatCommands(
+          listen,
+          {} as RunDeps,
+          (() => Promise.reject(new Error('not asked'))) as Confirm,
+        );
         const [status, tasks] = lotsmanTools(listen);
         expect(commands.tasks()).toBe((await tasks!.run({})).text);
         expect(commands.status()).toBe((await status!.run({})).text);

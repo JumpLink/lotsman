@@ -12,9 +12,15 @@ import {
   LOCKED,
   localTime,
   parseRunArgs,
+  renderTask,
   runTask,
+  TaskFileError,
   TaskUsageError,
+  type ConfirmationAction,
+  type ConfirmationOutcome,
+  type ConfirmedRun,
   type RunDeps,
+  type SkillTask,
   type TaskRun,
 } from '@lotsman/core';
 
@@ -46,14 +52,74 @@ export async function runReport(
   }
 }
 
-/** The words after `/run`, run like `lotsman run`. */
-export async function runReportFromText(args: string, deps: RunDeps): Promise<RunReport> {
+/** How a surface asks the person: `AgentSession.confirm` in the window, `confirmInChat` in the chat. */
+export type Confirm = <T>(action: ConfirmationAction, run: () => Promise<T>) => Promise<ConfirmedRun<T>>;
+
+/**
+ * What a confirmed run says it will do — built once from the same task and parameters the run uses.
+ *
+ * The prompt is the exact text the agent is sent and the directory is where the session starts: a task
+ * has no shell command of its own, the prompt is what it runs. Throws `TaskUsageError` for an unknown
+ * task or bad parameters, so a request that could never run is refused before anyone is asked.
+ */
+export function runAction(
+  lookup: (id: string) => SkillTask | null,
+  id: string,
+  params: Readonly<Record<string, string>>,
+): ConfirmationAction {
+  const skill = lookup(id);
+  if (!skill) throw new TaskUsageError(fmt(_('there is no task "{id}"; `lotsman tasks` lists them'), { id }));
+  const { prompt } = renderTask(skill, params);
+  const given = Object.entries(params).map(([name, value]) => `${name}=${value}`);
+  return {
+    kind: 'run-task',
+    summary: fmt(_('Run the task "{id}" in {cwd}'), { id, cwd: skill.cwd }),
+    details: [
+      { label: _('Task'), value: id },
+      ...(given.length > 0 ? [{ label: _('Parameters'), value: given.join(' ') }] : []),
+      { label: _('Directory'), value: skill.cwd },
+      { label: _('Prompt'), value: prompt },
+    ],
+  };
+}
+
+export function notRunText(outcome: ConfirmationOutcome): string {
+  return outcome.type === 'declined'
+    ? _('Not run: you said no.')
+    : _('Not run: the question expired before it was answered.');
+}
+
+/**
+ * The one way a run is started on someone's behalf — `/run` in the chat and the `lotsman_run` tool
+ * both end here. Nothing runs unless `confirm` comes back approved; the text says what happened.
+ */
+export async function confirmedRun(
+  id: string,
+  params: Readonly<Record<string, string>>,
+  deps: RunDeps,
+  confirm: Confirm,
+): Promise<string> {
+  let action: ConfirmationAction;
   try {
-    const { id, params } = parseRunArgs(args);
-    return await runReport(id, params, deps);
+    action = runAction(deps.skill, id, params);
   } catch (error) {
     if (error instanceof TaskUsageError)
-      return { code: 2, result: { status: 'usage', reason: error.message } };
+      return reportText({ code: 2, result: { status: 'usage', reason: error.message } });
+    if (error instanceof TaskFileError) return fmt(_('Failed: {reason}'), { reason: error.message });
+    throw error;
+  }
+  const done = await confirm(action, () => runReport(id, params, deps));
+  return done.type === 'ran' ? reportText(done.value) : notRunText(done.outcome);
+}
+
+/** The words after `/run`, confirmed and run. */
+export async function confirmedRunFromText(args: string, deps: RunDeps, confirm: Confirm): Promise<string> {
+  try {
+    const { id, params } = parseRunArgs(args);
+    return await confirmedRun(id, params, deps, confirm);
+  } catch (error) {
+    if (error instanceof TaskUsageError)
+      return reportText({ code: 2, result: { status: 'usage', reason: error.message } });
     throw error;
   }
 }

@@ -69,6 +69,8 @@ import {
   type AgentCommand,
   type AgentSnapshot,
   type ComposerInput,
+  type ConfirmationAction,
+  type ConfirmedRun,
   type ConnectionFacts,
   type EmptyStateView,
   type FailureNotice,
@@ -1201,6 +1203,14 @@ export class LotsmanChat extends Adw.Bin {
   /** Put a fixture question through the real gate. `AgentSession.stagePermissionRequest`. */
   stagePermissionRequest(): Promise<Awaited<ReturnType<AgentSession['stagePermissionRequest']>>> {
     return this.#agent.stagePermissionRequest();
+  }
+
+  /**
+   * Ask the person in the transcript and run `run` only after a yes (`AgentSession.confirm`).
+   * Fails closed: with no session to show the card in, nothing runs.
+   */
+  confirm<T>(action: ConfirmationAction, run: () => T | Promise<T>): Promise<ConfirmedRun<T>> {
+    return this.#agent.confirm(action, run);
   }
 
   /** Whether a confirmation card can be put up yet. `AgentSession.confirmationReady`. */

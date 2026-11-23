@@ -82,6 +82,7 @@ import { labelOf, type AgentSource, type SessionRecord, type TranscriptEntry } f
 import {
   parseConfigOptionSpec,
   type AgentCommand,
+  type ConfirmationAction,
   type EmptyStateView,
   type McpServer,
   type ModelPolicy,
@@ -98,6 +99,8 @@ import {
 } from './constants.ts';
 import type { AppDictation } from './dictation-hook.ts';
 import type { LotsmanHooks } from './hooks.ts';
+import { notRunText } from '../cli/task-commands.ts';
+import type { RunRequestHost } from './run-requests.ts';
 import { PreferencesDialog, type PreferencesActions } from './preferences.ts';
 import { SessionList } from './session-list.ts';
 import Template from './window.blp';
@@ -125,6 +128,8 @@ const PERMISSION_STAGE_DEADLINE_MS = 8_000;
 const CONFIRM_STAGE_POLL_MS = 500;
 const CONFIRM_STAGE_DEADLINE_MS = 30_000;
 const CONFIRM_SETTLE_DELAY_MS = 2_000;
+/** How often the window looks in the run inbox. A request waits for a conversation to show its card in. */
+const RUN_REQUEST_POLL_MS = 1_000;
 
 /**
  * How often the failure-dialog hooks reconsiders, and what one step buys them.
@@ -160,6 +165,8 @@ const MIDTURN_HOOK_STEP_MS = 50;
  * A `SessionStore` would drag `create`/`update`/`remove` in beside them.
  */
 export interface MainWindowOptions {
+  /** Requests an agent filed with `lotsman_run`: asked about in the open conversation, run after a yes. */
+  readonly runRequests?: RunRequestHost;
   /** Read once at startup. See `hooks.ts` — a state only a click can reach is a state untested. */
   readonly hooks: LotsmanHooks;
   /**
@@ -289,6 +296,7 @@ export class MainWindow extends Adw.ApplicationWindow {
   #permissionSource: number | null = null;
   /** The `LOTSMAN_APP_CONFIRM` timers (poll, then settle); both die with the window. */
   #confirmSources = new Set<number>();
+  #runRequestSource: number | null = null;
   /** How many times the staging poll has fired. See `PERMISSION_STAGE_POLL_MS`. */
   #permissionTicks = 0;
   #preferences: PreferencesDialog | null = null;
@@ -347,6 +355,7 @@ export class MainWindow extends Adw.ApplicationWindow {
     this._sidebarTitle.title = APP_NAME;
 
     this.#loadSessions = options.loadSessions;
+    if (options.runRequests) this.#serveRunRequests(options.runRequests);
     this.#sessions = new SessionList({ onOpen: (record) => this.#open(record) });
     // **The widget, built from this window's own options.** The two idle pages travel with it as
     // `closed` and `no-agent` slots — they are markup of this file's (`window.blp`) because their
@@ -640,6 +649,10 @@ export class MainWindow extends Adw.ApplicationWindow {
       if (this.#permissionSource !== null) {
         GLib.source_remove(this.#permissionSource);
         this.#permissionSource = null;
+      }
+      if (this.#runRequestSource !== null) {
+        GLib.source_remove(this.#runRequestSource);
+        this.#runRequestSource = null;
       }
       for (const source of this.#confirmSources) GLib.source_remove(source);
       this.#confirmSources.clear();
@@ -1070,6 +1083,38 @@ export class MainWindow extends Adw.ApplicationWindow {
       console.log(
         `lotsman: LOTSMAN_APP_PERMISSION — the staged question was answered ${JSON.stringify(answer)}`,
       );
+    });
+  }
+
+  /**
+   * Ask about, and run, what an agent filed with `lotsman_run`.
+   *
+   * Takes nothing until a conversation is open: the card is a transcript line, and a request taken with
+   * nowhere to show it would be lost rather than asked about. Each one goes through the chat's
+   * `confirm`, so it is the same card, book and rule as every other outward action, and the task runs
+   * only after a yes; the outcome is written into the transcript beside the card.
+   */
+  #serveRunRequests(host: RunRequestHost): void {
+    this.#runRequestSource = GLib.timeout_add(GLib.PRIORITY_DEFAULT, RUN_REQUEST_POLL_MS, () => {
+      if (!this.#chat.confirmationReady) return GLib.SOURCE_CONTINUE;
+      for (const request of host.take()) {
+        const note = (text: string) =>
+          void this.#chat
+            .appendHostItem({ type: 'run-result', text, icon: 'system-run-symbolic' })
+            .catch(() => {});
+        let action: ConfirmationAction;
+        try {
+          action = host.action(request);
+        } catch (error) {
+          note(error instanceof Error ? error.message : String(error));
+          continue;
+        }
+        void this.#chat
+          .confirm(action, () => host.run(request))
+          .then((done) => note(done.type === 'ran' ? done.value : notRunText(done.outcome)))
+          .catch((error: unknown) => note(error instanceof Error ? error.message : String(error)));
+      }
+      return GLib.SOURCE_CONTINUE;
     });
   }
 

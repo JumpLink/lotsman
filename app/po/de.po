@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eu.jumplink.Lotsman\n"
 "Report-Msgid-Bugs-To: https://github.com/JumpLink/lotsman/issues\n"
-"POT-Creation-Date: 2026-11-21 10:04+0100\n"
+"POT-Creation-Date: 2026-11-23 20:02+0100\n"
 "PO-Revision-Date: 2026-10-26 16:35+0100\n"
 "Last-Translator: Pascal Garber\n"
 "Language-Team: German\n"
@@ -413,19 +413,19 @@ msgstr ""
 "Chat-Anfragen neu geladen: {what} (eine laufende Anfrage endet, wie sie "
 "begonnen hat)"
 
-#: app/src/frontends/cli/choose.ts:28 app/src/frontends/cli/listen.ts:175
-#: app/src/frontends/cli/listen.ts:277 app/src/frontends/cli/listen.ts:285
-#: app/src/frontends/cli/listen.ts:297 app/src/frontends/cli/listen.ts:316
+#: app/src/frontends/cli/choose.ts:28 app/src/frontends/cli/listen.ts:179
+#: app/src/frontends/cli/listen.ts:281 app/src/frontends/cli/listen.ts:289
+#: app/src/frontends/cli/listen.ts:301 app/src/frontends/cli/listen.ts:345
 msgid "  {line}"
 msgstr "  {line}"
 
 #: app/src/frontends/cli/choose.ts:38 app/src/frontends/cli/listen-deps.ts:140
-#: app/src/frontends/cli/listen.ts:127 app/src/frontends/cli/questions.ts:33
+#: app/src/frontends/cli/listen.ts:131 app/src/frontends/cli/questions.ts:33
 msgid "  {problem}"
 msgstr "  {problem}"
 
-#: app/src/frontends/cli/choose.ts:43 app/src/frontends/cli/listen.ts:190
-#: app/src/frontends/cli/listen.ts:227 app/src/frontends/cli/provider.ts:205
+#: app/src/frontends/cli/choose.ts:43 app/src/frontends/cli/listen.ts:194
+#: app/src/frontends/cli/listen.ts:231 app/src/frontends/cli/provider.ts:205
 msgid "  {note}"
 msgstr "  {note}"
 
@@ -443,42 +443,42 @@ msgstr ""
 msgid "  {warning}"
 msgstr "  {warning}"
 
-#: app/src/frontends/cli/listen.ts:80
+#: app/src/frontends/cli/listen.ts:84
 msgid "  #{questionId}: {message}"
 msgstr "  #{questionId}: {message}"
 
-#: app/src/frontends/cli/listen.ts:110
+#: app/src/frontends/cli/listen.ts:114
 msgid "  #{questionId}: {reason}"
 msgstr "  #{questionId}: {reason}"
 
-#: app/src/frontends/cli/listen.ts:168
+#: app/src/frontends/cli/listen.ts:172
 msgid "  messenger channel not started: {problem}"
 msgstr "  Messenger-Kanal nicht gestartet: {problem}"
 
-#: app/src/frontends/cli/listen.ts:173
+#: app/src/frontends/cli/listen.ts:177
 msgid "  messenger: {line}"
 msgstr "  Messenger: {line}"
 
-#: app/src/frontends/cli/listen.ts:194
+#: app/src/frontends/cli/listen.ts:198
 msgid "  {name}: {message}"
 msgstr "  {name}: {message}"
 
-#: app/src/frontends/cli/listen.ts:218
+#: app/src/frontends/cli/listen.ts:222
 msgid "answer chat requests and ask the person when an agent has a question"
 msgstr ""
 "Chat-Anfragen beantworten und die Person fragen, wenn ein Agent eine Frage "
 "hat"
 
-#: app/src/frontends/cli/listen.ts:220
+#: app/src/frontends/cli/listen.ts:224
 msgid "do not echo the agents' log lines"
 msgstr "die Logzeilen der Agenten nicht ausgeben"
 
-#: app/src/frontends/cli/listen.ts:238
+#: app/src/frontends/cli/listen.ts:242
 msgid "  {dropped} permission question(s) from an earlier listen cancelled"
 msgstr ""
 "  {dropped} Berechtigungsfrage(n) aus einem früheren listen abgebrochen"
 
-#: app/src/frontends/cli/listen.ts:242
+#: app/src/frontends/cli/listen.ts:246
 msgid ""
 "lotsman listen — listening for chat requests and answers, questions via "
 "{channel}, state in {dir}"
@@ -486,17 +486,21 @@ msgstr ""
 "lotsman listen — hört auf Chat-Anfragen und Antworten, Fragen über "
 "{channel}, Zustand in {dir}"
 
-#: app/src/frontends/cli/listen.ts:257
+#: app/src/frontends/cli/listen.ts:261
 msgid "  stopping: {why}"
 msgstr "  wird beendet: {why}"
 
-#: app/src/frontends/cli/listen.ts:301
+#: app/src/frontends/cli/listen.ts:305
 msgid ""
 "  {left} chat request(s) from an earlier listen were not completed; the chat "
 "was told"
 msgstr ""
 "  {left} Chat-Anfrage(n) aus einem früheren listen wurden nicht "
 "abgeschlossen; der Chat wurde informiert"
+
+#: app/src/frontends/cli/listen.ts:326
+msgid "  run request: {reason}"
+msgstr "  Ausführungsanfrage: {reason}"
 
 #: app/src/frontends/cli/login.ts:120
 msgid ""
@@ -576,8 +580,8 @@ msgid "cancelled."
 msgstr "abgebrochen."
 
 #: app/src/frontends/cli/mcp.ts:26
-msgid "serve Lotsman's read-only tools to an agent over MCP (stdio)"
-msgstr "Lotsmans schreibgeschützte Werkzeuge einem Agenten über MCP (stdio) anbieten"
+msgid "serve Lotsman's tools to an agent over MCP (stdio)"
+msgstr "Lotsmans Werkzeuge einem Agenten über MCP (stdio) anbieten"
 
 #: app/src/frontends/cli/messenger.ts:126
 msgid "show or set the requests `lotsman listen` takes from the chat"
@@ -877,67 +881,100 @@ msgstr "laufende Aufgaben, letzte Läufe und offene Fragen anzeigen"
 msgid "print the status as JSON"
 msgstr "den Status als JSON ausgeben"
 
-#: app/src/frontends/cli/task-commands.ts:65
-msgid "Done."
-msgstr "Erledigt."
-
-#: app/src/frontends/cli/task-commands.ts:67
-msgid "Waiting for you: {id}. Answer it with `lotsman answer {id} <text>`."
-msgstr "Wartet auf dich: {id}. Antworte mit `lotsman answer {id} <Text>`."
-
 #: app/src/frontends/cli/task-commands.ts:71
-msgid "Not started: {reason}"
-msgstr "Nicht gestartet: {reason}"
+msgid "there is no task \"{id}\"; `lotsman tasks` lists them"
+msgstr "es gibt keine Aufgabe „{id}“; `lotsman tasks` listet sie auf"
 
-#: app/src/frontends/cli/task-commands.ts:73
+#: app/src/frontends/cli/task-commands.ts:76
+msgid "Run the task \"{id}\" in {cwd}"
+msgstr "Die Aufgabe „{id}“ in {cwd} ausführen"
+
+#: app/src/frontends/cli/task-commands.ts:78
+msgid "Task"
+msgstr "Aufgabe"
+
+#: app/src/frontends/cli/task-commands.ts:79
+msgid "Parameters"
+msgstr "Parameter"
+
+#: app/src/frontends/cli/task-commands.ts:80
+msgid "Directory"
+msgstr "Verzeichnis"
+
+#: app/src/frontends/cli/task-commands.ts:81
+msgid "Prompt"
+msgstr "Prompt"
+
+#: app/src/frontends/cli/task-commands.ts:88
+msgid "Not run: you said no."
+msgstr "Nicht ausgeführt: Du hast Nein gesagt."
+
+#: app/src/frontends/cli/task-commands.ts:89
+msgid "Not run: the question expired before it was answered."
+msgstr "Nicht ausgeführt: Die Frage ist abgelaufen, bevor sie beantwortet wurde."
+
+#: app/src/frontends/cli/task-commands.ts:108
+#: app/src/frontends/cli/task-commands.ts:139
 msgid "Failed: {reason}"
 msgstr "Fehlgeschlagen: {reason}"
 
-#: app/src/frontends/cli/task-commands.ts:74
+#: app/src/frontends/cli/task-commands.ts:131
+msgid "Done."
+msgstr "Erledigt."
+
+#: app/src/frontends/cli/task-commands.ts:133
+msgid "Waiting for you: {id}. Answer it with `lotsman answer {id} <text>`."
+msgstr "Wartet auf dich: {id}. Antworte mit `lotsman answer {id} <Text>`."
+
+#: app/src/frontends/cli/task-commands.ts:137
+msgid "Not started: {reason}"
+msgstr "Nicht gestartet: {reason}"
+
+#: app/src/frontends/cli/task-commands.ts:140
 msgid "another run of this task is still in progress"
 msgstr "ein anderer Lauf dieser Aufgabe ist noch in Arbeit"
 
-#: app/src/frontends/cli/task-commands.ts:80
+#: app/src/frontends/cli/task-commands.ts:146
 msgid "No tasks."
 msgstr "Keine Aufgaben."
 
-#: app/src/frontends/cli/task-commands.ts:119
+#: app/src/frontends/cli/task-commands.ts:185
 msgid "done"
 msgstr "erledigt"
 
-#: app/src/frontends/cli/task-commands.ts:121
+#: app/src/frontends/cli/task-commands.ts:187
 msgid "waiting for you"
 msgstr "wartet auf dich"
 
-#: app/src/frontends/cli/task-commands.ts:123
+#: app/src/frontends/cli/task-commands.ts:189
 msgid "declined"
 msgstr "abgelehnt"
 
-#: app/src/frontends/cli/task-commands.ts:125
+#: app/src/frontends/cli/task-commands.ts:191
 msgid "nothing to do"
 msgstr "nichts zu tun"
 
-#: app/src/frontends/cli/task-commands.ts:127
+#: app/src/frontends/cli/task-commands.ts:193
 msgid "skipped"
 msgstr "übersprungen"
 
-#: app/src/frontends/cli/task-commands.ts:129
+#: app/src/frontends/cli/task-commands.ts:195
 msgid "failed"
 msgstr "fehlgeschlagen"
 
-#: app/src/frontends/cli/task-commands.ts:145
+#: app/src/frontends/cli/task-commands.ts:211
 msgid "Running: {tasks}"
 msgstr "Läuft: {tasks}"
 
-#: app/src/frontends/cli/task-commands.ts:146
+#: app/src/frontends/cli/task-commands.ts:212
 msgid "Nothing is running."
 msgstr "Nichts läuft."
 
-#: app/src/frontends/cli/task-commands.ts:153
+#: app/src/frontends/cli/task-commands.ts:219
 msgid "{task}: {outcome} at {time}"
 msgstr "{task}: {outcome} um {time}"
 
-#: app/src/frontends/cli/task-commands.ts:161
+#: app/src/frontends/cli/task-commands.ts:227
 msgid "Open: {id} ({task}) until {time}"
 msgstr "Offen: {id} ({task}) bis {time}"
 
@@ -1004,7 +1041,7 @@ msgstr "Es ließ sich kein Mikrofon öffnen."
 msgid "Dictation is switched off."
 msgstr "Diktat ist ausgeschaltet."
 
-#: app/src/frontends/gui/main.ts:206
+#: app/src/frontends/gui/main.ts:211
 msgid ""
 "An ACP client for GNOME: start a coding agent as a subprocess, watch it "
 "work, and answer the questions it asks. The agent brings its own model, its "

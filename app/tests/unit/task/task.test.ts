@@ -270,7 +270,7 @@ export default async () => {
           minCycleMs: 0,
           backoff: { initialMs: 10, maxMs: 40 },
           sleep: (_ms, signal) => abortableSleep(10, signal),
-          commands: chatCommands(paths, d),
+          commands: chatCommands(paths, d, (() => Promise.reject(new Error('not asked'))) as never),
         });
         try {
           fake.deliver('2026-10-10T11:30:00.000Z', '/tasks');
