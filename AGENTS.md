@@ -137,6 +137,8 @@ Measurements, dev hooks, GTK behaviour and the dual-run rationale:
 `refs/acp/schema.v1.json` is the normative artifact; refresh with `./scripts/update-acp-schema`.
 `scripts/check-schema.mjs` fails the build when code and schema disagree — read the diff before
 committing a refresh.
+Every other `refs/` entry is read-only inspiration, never build input:
+[docs/references/index.md](docs/references/index.md).
 
 ## Packaging
 

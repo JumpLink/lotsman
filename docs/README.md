@@ -18,6 +18,7 @@ Agent-facing guidance is in [../AGENTS.md](../AGENTS.md). The files here expand 
 ## Architecture
 
 - [ADR index](adr/README.md)
+- [Reference repositories](references/index.md): `refs/`, what each is for
 - [Package layout](architecture/package-layout.md) — what lives in each package and why.
 - [Embeddable widget study](architecture/embeddable-widget-study.md) — extracting `@lotsman/widget`.
 
