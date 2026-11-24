@@ -15,6 +15,7 @@
     "**/*.yml",
     "**/*.yaml",
     "**/node_modules",
+    "refs/openwork",
     "**/dist",
     "**/lib",
     "**/coverage",
